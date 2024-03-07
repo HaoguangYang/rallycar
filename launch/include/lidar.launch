@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="urg_node" type="urg_node" name="run_hokuyo_10lx" >
+        <param name="ip_address" value="128.46.112.200"/>
+    </node>
+</launch>

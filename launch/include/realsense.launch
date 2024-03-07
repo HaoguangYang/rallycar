@@ -1,0 +1,77 @@
+<launch>
+  <arg name="device_type_rs_camera"     default="d435i"/>		<!-- Note: using regular expression. match D435, D435i, D415... -->
+  <!--arg name="usb_port_id_d1"         default="2-1"/-->
+  <arg name="rs_camera"                 default="rs_camera"/>
+  <arg name="tf_prefix_rs_camera"       default="$(arg rs_camera)"/>
+  <arg name="initial_reset"             default="false"/>
+  <group if="$(eval arg('device_type_rs_camera') == 'd435i')">
+    <arg name="color_width"             default="848"/>
+    <arg name="color_height"            default="480"/>
+    <arg name="depth_width"             default="848"/>
+    <arg name="depth_height"            default="480"/>
+  </group>
+  <group if="$(eval arg('device_type_rs_camera') == 'd415')">
+    <arg name="color_width"             default="1280"/>
+    <arg name="color_height"            default="720"/>
+    <arg name="depth_width"             default="1280"/>
+    <arg name="depth_height"            default="720"/>
+  </group>
+  <arg name="color_fps"                 default="30"/>
+  <arg name="depth_fps"                 default="30"/>
+  <arg name="clip_distance"             default="8.0"/>
+
+  <group ns="$(arg rs_camera)">
+    <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+      <arg name="device_type"           value="$(arg device_type_rs_camera)"/>
+      <!--arg name="usb_port_id"           value="$(arg usb_port_id_d1)"/-->
+      <arg name="tf_prefix"		        value="$(arg tf_prefix_rs_camera)"/>
+      <arg name="initial_reset"         value="$(arg initial_reset)"/>
+      <arg name="align_depth"           value="false"/>
+      <arg name="enable_sync"           value="false"/>
+      <arg name="filters"               value="disparity,spatial,temporal,hdr_merge"/>
+      <arg name="enable_pointcloud"     value="false"/>
+      <arg name="color_width"           value="$(arg color_width)"/>
+      <arg name="color_height"          value="$(arg color_height)"/>
+      <arg name="depth_width"           value="$(arg depth_width)"/>
+      <arg name="depth_height"          value="$(arg depth_height)"/>
+      <arg name="color_fps"             value="$(arg color_fps)"/>
+      <arg name="depth_fps"             value="$(arg depth_fps)"/>
+      <arg name="clip_distance"         value="$(arg clip_distance)"/>
+      <!--arg name="unite_imu_method"      value="linear_interpolation"/-->
+      <arg name="enable_gyro"           value="false"/>
+      <arg name="enable_accel"          value="false"/>
+      <arg name="respawn"               value="true"/>
+    </include>
+    
+    <node pkg="nodelet" type="nodelet" name="depth_proc_nodelet"
+      args="load depth_image_proc/point_cloud_xyz realsense2_camera_manager false" respawn="true">
+      <remap from="camera_info" to="depth/camera_info"/>
+      <remap from="image_rect" to="depth/image_rect_raw"/>
+      <remap from="points" to="depth/points"/>
+    </node>
+  </group>
+  
+  <group ns="$(arg rs_camera)/color/image_raw/" >
+    <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+        - 'image_transport/compressed'
+        - 'image_transport/theora'
+    </rosparam>
+  </group>
+  <group ns="$(arg rs_camera)/depth/image_rect_raw/" >
+    <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+        - 'image_transport/compressed'
+        - 'image_transport/theora'
+    </rosparam>
+  </group>
+  <group ns="$(arg rs_camera)/aligned_depth_to_color/image_raw/" >
+    <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+        - 'image_transport/compressed'
+        - 'image_transport/theora'
+    </rosparam>
+  </group>
+
+</launch>
+

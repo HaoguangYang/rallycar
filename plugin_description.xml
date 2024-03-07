@@ -1,0 +1,9 @@
+<library path="lib/librallycar_rviz_plugin">
+  <class name="rallycar/RemoveLastNavGoal"
+         type="rallycar_rviz_plugin::RemoveLastNavGoal"
+         base_class_type="rviz::Tool">
+    <description>
+      Tool for removing the last 2D NavGoal from Rallycar path recorder.
+    </description>
+  </class>
+</library>
