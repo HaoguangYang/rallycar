@@ -21,16 +21,16 @@ namespace ros
 #define LED_PIN 13
 
 const float targetRate = 100.0;
-const float accPedalMin = -2048.0;
-const float accPedalMax = 2048.0;
+const float accPedalRange = 2048.0;
 const float escMin = 1000.0;
 const float escMax = 2000.0;
-const float steerMin = -2048.0;
-const float steerMax = 2048.0;
+const float steerRange = 2048.0;
 const float steerServoMin = 1000.0;
 const float steerServoMax = 2000.0;
-const float spdLimiterMin = 1380.0;
-const float spdLimiterMax = 1620.0;
+//const float spdLimiterMin = 1380.0;
+//const float spdLimiterMax = 1620.0;
+const float spdLimiterMin = 1500.0;
+const float spdLimiterMax = 2000.0;
 
 const float steerServoZero = (steerServoMin + steerServoMax) * 0.5;
 const float escZero = (escMin + escMax) * 0.5;
@@ -54,19 +54,19 @@ uint8_t fifoBuffer[64]; // FIFO storage buffer
 
 Servo eSC, steeringServo;
 
-float fmap (const float& in, const float& in_min, const float& in_max, const float& out_min, const float& out_max) {
+inline float fmap (const float& in, const float& in_min, const float& in_max, const float& out_min, const float& out_max) {
   return (in - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void steerCb(const std_msgs::Float32& steerCmd) {
-  float cmd = fmap(steerCmd.data, steerMin, steerMax, steerServoMin, steerServoMax);
-  cmd = constrain(cmd, steerServoMin, steerServoMax);
+  float cmd = constrain(steerCmd.data, -steerRange, steerRange);
+  cmd = fmap(cmd, -steerRange, steerRange, steerServoMin, steerServoMax);
   steeringServo.writeMicroseconds((int)cmd);
 }
 
 void accelBrakeCb(const std_msgs::Float32& accelBrakeCmd) {
-  float cmd = fmap(accelBrakeCmd.data, accPedalMin, accPedalMax, escMin, escMax);
-  cmd = constrain(cmd, -escLimit, escLimit);
+  float cmd = constrain(accelBrakeCmd.data, -escLimit, escLimit);
+  cmd = fmap(accelBrakeCmd.data, -accPedalRange, accPedalRange, escMin, escMax);
   eSC.writeMicroseconds((int)cmd);
 }
 
@@ -76,14 +76,25 @@ ros::Subscriber<std_msgs::Float32> accelBrakeSub("accelerator_cmd", &accelBrakeC
 void setup(void) {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
+
+  // ROS components
+  nh.getHardware()->setBaud(115200);
+  nh.initNode();
+  nh.advertise(accPub);
+  nh.advertise(gyroPub);
+  nh.advertise(quatPub);
+  nh.advertise(stampPub);
+  nh.subscribe(steerSub);
+  nh.subscribe(accelBrakeSub);
+
   // Try to initialize IMU
   imu.initialize();
   while (!imu.testConnection()) {
-    delay(100);
+    delay(50);
     imu.initialize();
   }
   while (imu.dmpInitialize()) {
-    delay(100);
+    delay(50);
   }
 
   // supply your own gyro offsets here, scaled for min sensitivity
@@ -110,16 +121,6 @@ void setup(void) {
   // External hardware interrupt is attached to the pin and the interrupt is set to trigger on 'CHANGE'
   // in state of pin. On trigger the Interrupt service routing trimPulseTimer is called.
   attachInterrupt(digitalPinToInterrupt(SPEED_LIMITER_PIN), trimPulseTimer, CHANGE);
-
-  // ROS components
-  nh.getHardware()->setBaud(115200);
-  nh.initNode();
-  nh.advertise(accPub);
-  nh.advertise(gyroPub);
-  nh.advertise(quatPub);
-  nh.advertise(stampPub);
-  nh.subscribe(steerSub);
-  nh.subscribe(accelBrakeSub);
 }
 
 void GetIMUData(geometry_msgs::Point32* acc, geometry_msgs::Point32* gyro, std_msgs::ColorRGBA* quat) {
@@ -193,6 +194,7 @@ void trimPulseTimer() {
     spdLimiterPulseHigh = micros();
   } else {
     float pulseWidth = (float)(micros() - spdLimiterPulseHigh);
-    escLimit = fmap(pulseWidth, spdLimiterMin, spdLimiterMax, escZero, escMax);
+    escLimit = (constrain(pulseWidth, spdLimiterMin, spdLimiterMax) - spdLimiterMin)
+      / (spdLimiterMax - spdLimiterMin) * accPedalRange;
   }
 }
