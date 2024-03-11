@@ -1,5 +1,7 @@
-# MFET 642/442 Programming Robots with ROS
-The RallyCar Base Software
+# MFET 642/442 Programming Robots with ROS -- The RallyCar Base Software
+
+![A top-down view of the rallycar with component illustration](resources/figures/rallycar-top-down.jpg)
+A top-down view of the rallycar with component illustration.
 
 ## Included components
 The package includes low-level hardware interface, as well as utilities that helps developers to build and load maps and race lines.
@@ -55,9 +57,9 @@ This plugin is meant to be used with the path server in this package, and with t
 
 ## Operating Procedure
 
-1. Connect the electronics battery (Li-ion) to the upper deck plug. The upper deck electronics should receive power now and you will be able to hear the LiDAR spinning up. Press the first button on the Nvidia board to power up the computer. You should see a white light lit up on the small circuit board at the front of the car when the system is ready.
+1. Connect the electronics battery (Li-ion) to the upper deck plug. The upper deck electronics should receive power now and you will be able to hear the LiDAR spinning up. Press the `POWER BTN` button on the Nvidia board to power up the computer (fourth button starting from the corner). You should see a white light lit up on the IMU circuit board at the front of the car when the system is ready.
 
-2. The cars automatically connect to the ROSLab WiFi that the instructor sets up. To remotely connect to your car, you need to be on the same WiFi. Log into your car with user name `nvidia`:
+2. The cars automatically connect to the `ROSLab` WiFi that the instructor sets up. To remotely connect to your car, you need to be on the same WiFi. Log into your car with user name `nvidia`:
     ```sh
     ssh nvidia@car-X.local
     ```
@@ -81,7 +83,23 @@ This plugin is meant to be used with the path server in this package, and with t
     ```
     Finally, **do not forget to unplug the Li-ion battery** to the upper deck **and turn off the remote**.
 
+## The onboard computer and system environments
+
+![A top-down view of the Jetson TX2](resources/figures/tx2-diagram.jpg)
+A top-down view of the Jetson TX2.
+
+We provide NVIDIA Jetson TX2 single-board computer as the onboard processing hardware of our 2nd-generation rallycars (since 2017). The computer has a 6-core ARM64 processor and a Pascal generation 256-core GPU, CUDA compatible. The onboard computer has 8GB of memory and 32GB of storage. After OS and ROS installation, the amount of free storage onboard is about 12 GB.
+
+Although NVIDIA has officially dropped support for this device in 2020, and the official OS images stayed at Ubuntu 18.04, we managed to upgrade it to Ubuntu 20.04 and passed functional checks. This unofficial upgrade brings us huge benefits in using ROS noetic out-of-the-box, since noetic is the first ROS version that migrated to Python 3.
+
+We also packed our TX2 with more useful libraries. We have included CUDA 8.0, TensorRT 8.2.1.8, and OpenCV 4.2 with CUDA support in the OS. Specifically, the OpenCV version is chosen based on native ROS noetic support, and compiled from source to add CUDA-based accelerations. We have also included a community edition of Docker in case any students want to explore ROS2 on this system.
+
+As we are moving on, a Next-Generation of rallycar is emerging based on ROS2, powered by the new NVIDIA Orin Nano single-board computer. The Orin Nano has a similiar 6-core, 8GB RAM configuration, but has a more powerful GPU (1024-core NVIDIA Ampere generation with 32 Tensor Cores). This configuration allows more developments in edge image processing and edge AI to be added in the future. The Orin Nano starts off with Ubuntu 22.04, which means ROS1 software have to now run in containers or compiled from source. However, the new OS has native support for ROS2 Humble, an active long-term-support version of ROS2.
+
 ## How to use the remote control
+
+![The rallycar remote control](resources/figures/remote-control.jpg)
+A diagram of the remote control, powered on and operational.
 
 ### Remote control as a deadman switch
 To prevent the car from loosing control, multiple safety features are implemented on the hardware. Since the car will drive itself, we no longer need the remote to steer the car. However, we repurpose the remote control as a safety mechanism known as the "deadman switch". To keep the car moving, the deadman switch must be online and pressed. For our remote, to activate the driving motor on the car, we need to:
@@ -120,9 +138,11 @@ The remote uses 4xAA batteries. If the LED on the remote turns red and blinking 
 3. My onboard computer will not turn on.
     - Verify the DC-DC boost module is on and providing at least 12.5V output. Otherwise, consider charging your upper deck battery.
     - Verify the power connector to the onboard computer is properly connected.
+    ![Jetson TX2 turned on](resources/figures/tx2-powered-on.jpg)
+    This is what a powered-on Jetson TX2 onboard computer looks like.
 
 4. I cannot connect to my onboard computer.
-    - Please make sure you are on the ROSLab WiFi, the same network the onboard computer will connect to. Try ping-ing the onboard computer when connected to the ROSLab WiFi.
+    - Please make sure you are on the `ROSLab` WiFi, the same network the onboard computer will connect to. Try ping-ing the onboard computer when connected to the `ROSLab` WiFi.
     - If you need physical access to the screen, a recommended way is to use a 270-degree HDMI connector to reduce strain on the cable.
     - *At your own risk* Alternatively, you can set up your own network switch with subnet `192.168.0.0/24` and avoid other devices using `192.168.0.1`. Unplug the LiDAR from the onboard computer and plug it into the switch. Then, plug the onboard computer to the swtich with an Ethernet cable. You should connect to the onboard computer at `192.168.0.1`.
 
