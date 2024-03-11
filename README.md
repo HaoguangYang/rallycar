@@ -7,7 +7,7 @@ The package includes low-level hardware interface, as well as utilities that hel
 ### Hardware interface
 The hardware interface is started with the `launch/rallycar_hardware.launch` launch file. The hardware interface is realized through the standard `rosserial` package. Specifically, on the client side, we use an Arduino as the aggregator of the low-level motor drivers and an IMU sensor. The code on the Arduino is provided in the `firmware` folder as a reference. Students are not required to understand or modify the firmware. By configuring the Arduino with the `rosserial` library, the server side (onboard computer) can convert the serial communication contents to and from ROS messages directly. This is achieved using the `rosserial_python` package.
 The hardware interface is subscribing to the following topics that drive the car:
-- `/accelerator_cmd` :arrow_left: throttle commands with `std_msgs/Float32` message type. The effective data range is $-2048.0$ to $2048.0$. Out-of-range values will be cropped to the nearest value. A positive value means driving the car forward. $2048.0$ corresponds to full throttle. A value around $170$ ~ $210$ will make the car start to move. From a broad observation, the throttle deadzone is about $180.0$, with about $15.0$ hysteresis. No effective breaking/back-driving was observed previously despite setting the value to negative. A previous document noted about a second trigger of a negative value (negative->0->negative) will put the car in reverse. This behavior is still to be verified.
+- `/accelerator_cmd` :arrow_left: throttle commands with `std_msgs/Float32` message type. The effective data range is $-2048.0$ to $2048.0$. Out-of-range values will be cropped to the nearest value. A positive value means driving the car forward. $2048.0$ corresponds to full throttle. A value around $170$ ~ $210$ will make the car start to move. From a broad observation, the throttle deadzone is about $180.0$, with about $15.0$ hysteresis. A negative value will put the car in reverse.
 - `/steering_cmd` :arrow_left: steering commands with `std_msgs/Float32` message type. The effective data range is $-2048.0$ to $2048.0$. Out-of-range values will be cropped to the nearest value. $2048.0$ indicates full *left* steering, and $-2048.0$ indicates full right steering. The steering angle on the front wheel is about $50^{\circ}$ (or $100^{\circ}$ end-to-end). A steering command around $\pm1000.0$ gives a turning radius of about $1$ meter.
 The throttle and steering commands are processed at $100$ Hz max frequency. Usually a $50$ Hz frequency is enough.
 
@@ -48,3 +48,122 @@ This plugin is meant to be used with the path server in this package, and with t
 - `build_path.launch`: builds new path with the provided map file and the path name. It starts the path server in `record` mode, loads the map, and starts an RViz instance for user interaction.
 - `load_map.launch`: snippet that loads the specified map file using `map_server`, which publishes the map under the `/map` topic.
 - `load_path.launch`: snippet that loads the specified path file using the path server under `publish` mode. It publishes the path under the `/desired_path` topic.
+
+## Operating Procedure
+
+1. Connect the electronics battery (Li-ion) to the upper deck plug. The upper deck electronics should receive power now and you will be able to hear the LiDAR spinning up. Press the first button on the Nvidia board to power up the computer. You should see a white light lit up on the small circuit board at the front of the car when the system is ready.
+
+2. The cars automatically connect to the ROSLab WiFi that the instructor sets up. To remotely connect to your car, you need to be on the same WiFi. Log into your car with user name `nvidia`:
+    ```sh
+    ssh nvidia@car-X.local
+    ```
+    where 'X' is your car number as painted on the rear left corner of the upper deck. When asked for password, enter `nvidia`. The password will **not** show up.
+
+    You can also log in with `ssh nvidia@192.168.43.2XX`, where XX is the zero-padded car number. For example, `192.168.43.202` for car 2.
+
+    You can perform code development when the lower deck is not powered.
+
+3. Alternatively, you can open a remote desktop view of your car computer with [VNC Viewer (on Windows)](), [Remmina (on Linux)](), or [the builtin VNC client (on Mac)]. For address, enter `car-X.local` or `192.168.43.2XX` (remember to replace X with your car number) in the previous step. The VNC password is `nvidia`.
+
+4. Turn on your remote control (RC) by toggling the switch on the rear of the remote to the right. A solid green LED should light up on the side of the remote.
+
+5. Connect the motor battery (Ni-MH) to the blue Electronic Speed Controller (ESC) on the lower deck. Press the button on the ESC to power it up. You should see a solid green LED on the ESC, as well as on the radio receiver (a smaller cube further inside the lower deck of the car).
+
+6. Put your car on a safe stand, or put it on a flat ground if you are running with IMU. You can start your code now. Wait until the `L` LED and the `TX` LED on the Arduino light up (it may take up to three seconds). Your car is ready to go.
+
+7. When you have finished, power down the ESC by pressing the button on the ESC for 2 seconds. Power down the onboard computer through the graphical desktop, or by the command:
+    ```sh
+    sudo poweroff
+    ```
+    Finally, **do not forget to unplug the Li-ion battery** to the upper deck.
+
+## How to use the remote control
+
+### Remote control as a deadman switch
+To prevent the car from loosing control, multiple safety features are implemented on the hardware. Since the car will drive itself, we no longer need the remote to steer the car. However, we repurpose the remote control as a safety mechanism known as the "deadman switch". To keep the car moving, the deadman switch must be online and pressed. For our remote, to activate the driving motor on the car, we need to:
+
+- pair it to the car,
+- power it on, and
+- hold down the throttle trigger.
+
+Missing any one of the three conditions will disable the driving motor. Furthermore, the travel of the trigger will act as a limiter to the maximum percentage of power applied to the driving motor.
+
+### Pairing the remote with the car
+If your radio receiver on the car has a fast-blinking (~3Hz) red LED when turned on, you need to pair your remote with the car. To perform pairing:
+
+1. First make sure the ESC is off. Press and hold the pairing button on the radio receiver, and turn on the ESC **with the pairing button remain pressed**. You should see the red LED on the receiver slowly (~1Hz) blinking red, indicating the pairing mode.
+
+2. On your remote, first make sure the battery is operational on the remote, and the remote is powered off. Press and hold the `SET` button on the top, and turn on the remote with the `SET` button remain pressed. You should see both the remote and the radio receiver have solid green LEDs lit.
+
+### Changing battery of the remote
+The remote uses 4xAA batteries. If the LED on the remote turns red and blinking fast (~3Hz), you need to replace the batteries. The battery compartment is at the bottom of the remote.
+
+**Remember to turn off the remote after each test!**
+
+## Troubleshooting
+
+1. My car will not move despite I publish the command on the onboard computer.
+    - make sure your ESC and the remote has sufficient battery power. A slow-blinking red LED on the ESC indicates a low voltage on the motor battery.
+    - Verify that your remote (deadman switch) has sufficient battery, and is paired to the radio receiver. Gently depress the deadman switch trigger.
+    - Verify that you are publishing a proper value to `/accelerator_cmd` topic with message type `std_msgs/Float32` at at least 1Hz frequency, and verify `rallycar_driver` is one of the subscribers.
+    - *Post-crash, Instructor permission* Check cable harness -- the deadman switch is the signal pin (pin 1) of slot 3 on the radio receiver. The other end of the cable is attached to pin 2 of the Arduino.
+    - *Post-crash, Instructor permission* Check cable harness -- the PWM output to the driving motor is pin 7 of the Arduino. It should be connected to the white wire from the ESC. The other pin on that connector should connect the ground of the ESC to the ground of the Arduino.
+
+2. My car will not steer despite I publish the command on the onboard computer.
+    - Verify that you are publishing a proper value to `/steering_cmd` topic with message type `std_msgs/Float32`, and verify `rallycar_driver` is one of the subscribers.
+    - *Post-crash, Instructor permission* Check cable harness -- the PWM output to the driving motor is pin 6 of the Arduino. It should be connected to the white wire from the steering servo motor. The other pin on that connector should connect the ground of the steering servo motor to the ground of the Arduino.
+
+3. My onboard computer will not turn on.
+    - Verify the DC-DC boost module is on and providing at least 12.5V output. Otherwise, consider charging your upper deck battery.
+    - Verify the power connector to the onboard computer is properly connected.
+
+4. I cannot connect to my onboard computer.
+    - Please make sure you are on the ROSLab WiFi, the same network the onboard computer will connect to. Try ping-ing the onboard computer when connected to the ROSLab WiFi.
+    - If you need physical access to the screen, a recommended way is to use a 270-degree HDMI connector to reduce strain on the cable.
+    - *At your own risk* Alternatively, you can set up your own network switch with subnet `192.168.0.0/24` and avoid other devices using `192.168.0.1`. Unplug the LiDAR from the onboard computer and plug it into the switch. Then, plug the onboard computer to the swtich with an Ethernet cable. You should connect to the onboard computer at `192.168.0.1`.
+
+5. My VNC screen freezes when an external monitor is not connected.
+    - Please `ssh` into the computer and edit the file with `sudo`:
+        ```sh
+        sudo nano /etc/X11/xorg.conf
+        ```
+      Comment out line 21, and uncomment line 23. Press `Ctrl-X` to save and exit. Then run:
+        ```sh
+        sudo service gdm3 restart
+        ```
+      Note that you need to revert this modification to connect to a physical monitor.
+
+6. My external HDMI monitor is showing a black screen.
+    - Please `ssh` into the computer and edit the file with `sudo`:
+        ```sh
+        sudo nano /etc/X11/xorg.conf
+        ```
+      Comment out line 23, and uncomment line 21. Press `Ctrl-X` to save and exit. Then run:
+        ```sh
+        sudo service gdm3 restart
+        ```
+      Note that you need to revert this modification to use VNC connection without an HDMI spoofer plug.
+
+7. My LiDAR is not connecting.
+    - Check your launch file for a proper LiDAR IP address (`192.168.0.10`). If you are using this base software, it should be in `launch/include/laser.launch`.
+    - Check network interfaces on the onboard computer:
+        ```sh
+        ifconfig
+        ```
+      Among the results, please confirm your `eth0` interface is active and has an IP address `192.168.0.1`. If not, make `eth0` online through either the graphical desktop or command line.
+    - Try to ping the LiDAR at `192.168.0.10`. If it replys, your LiDAR is broken. Please seek help from the instructors.
+    - If your LiDAR does not reply and your `eth0` is online, your LiDAR may still be somewhere in the network. To find it, do:
+        ```sh
+        sudo tcpdump -i eth0 port 10940
+        ```
+      You will see in the output, something like:
+        ```sh
+        12:46:24.835043 IP 128.46.112.200.10940 > 192.168.0.1.10940: UDP, length 131
+        ```
+      In the packets, The first IP indicates the current IP of the LiDAR. You can then migrate the LiDAR to the `192.168.0.10` IP:
+        ```sh
+        rosrun urg_node set_urg_ip.py 192.168.0.10 192.168.0.1 --nm 255.255.255.0 --ip $LIDAR_IP_YOU_HAVE_FOUND
+        ```
+      Power-cycle the entire upper deck to make changes take effect.
+
+If none of the above solve your issue, please consult with the instructors.

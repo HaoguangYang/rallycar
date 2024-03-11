@@ -34,9 +34,10 @@ const float spdLimiterMax = 2000.0;
 
 const float steerServoZero = (steerServoMin + steerServoMax) * 0.5;
 const float escZero = (escMin + escMax) * 0.5;
-const long targetLoopInterval = floor(1000000./targetRate);
+//const long targetLoopInterval = floor(1000000./targetRate);
 
-volatile long spdLimiterPulseHigh  = 0;  // The time at beginning of the pulse (on rising edge) in us
+volatile uint16_t spdLimiterPulseHighEdge  = 0;  // The time at beginning of the pulse (on rising edge) in us
+volatile uint8_t throttleWatchdogSeconds = 0;
 volatile float escLimit = 0;  // The width of pulse in us(microseconds)
 
 ros::MyNodeHandle nh;
@@ -59,15 +60,16 @@ inline float fmap (const float& in, const float& in_min, const float& in_max, co
 }
 
 void steerCb(const std_msgs::Float32& steerCmd) {
-  float cmd = constrain(steerCmd.data, -steerRange, steerRange);
+  float cmd = constrain(-steerCmd.data, -steerRange, steerRange);
   cmd = fmap(cmd, -steerRange, steerRange, steerServoMin, steerServoMax);
   steeringServo.writeMicroseconds((int)cmd);
 }
 
 void accelBrakeCb(const std_msgs::Float32& accelBrakeCmd) {
   float cmd = constrain(accelBrakeCmd.data, -escLimit, escLimit);
-  cmd = fmap(accelBrakeCmd.data, -accPedalRange, accPedalRange, escMin, escMax);
+  cmd = fmap(cmd, -accPedalRange, accPedalRange, escMin, escMax);
   eSC.writeMicroseconds((int)cmd);
+  throttleWatchdogSeconds = (uint8_t)((micros() >> 20) & 0xFF); // approx 1.048 secs
 }
 
 ros::Subscriber<std_msgs::Float32> steerSub("steering_cmd", &steerCb);
@@ -186,15 +188,18 @@ void loop() {
     quatPub.publish(&quatMsg);
     stampPub.publish(&rosTimeMsg);
 	}
+  // throttle watchdog times out at 2 seconds
+  uint8_t secNow = (uint8_t)((micros() >> 20) & 0xFF);
+  if (secNow - throttleWatchdogSeconds > 2) eSC.writeMicroseconds((int)escZero);
   nh.spinOnce();
 }
 
 void trimPulseTimer() {
   if (digitalRead(SPEED_LIMITER_PIN) == HIGH) {
-    spdLimiterPulseHigh = micros();
+    spdLimiterPulseHighEdge = micros() & 0xFFFF;
   } else {
-    float pulseWidth = (float)(micros() - spdLimiterPulseHigh);
-    escLimit = (constrain(pulseWidth, spdLimiterMin, spdLimiterMax) - spdLimiterMin)
-      / (spdLimiterMax - spdLimiterMin) * accPedalRange;
+    float spdLimiterPulseWidth = (float)((micros() & 0xFFFF) - spdLimiterPulseHighEdge);
+    escLimit = (constrain(spdLimiterPulseWidth, spdLimiterMin, spdLimiterMax)
+      - spdLimiterMin) / (spdLimiterMax - spdLimiterMin) * accPedalRange;
   }
 }
