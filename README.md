@@ -6,15 +6,19 @@ The package includes low-level hardware interface, as well as utilities that hel
 
 ### Hardware interface
 The hardware interface is started with the `launch/rallycar_hardware.launch` launch file. The hardware interface is realized through the standard `rosserial` package. Specifically, on the client side, we use an Arduino as the aggregator of the low-level motor drivers and an IMU sensor. The code on the Arduino is provided in the `firmware` folder as a reference. Students are not required to understand or modify the firmware. By configuring the Arduino with the `rosserial` library, the server side (onboard computer) can convert the serial communication contents to and from ROS messages directly. This is achieved using the `rosserial_python` package.
+
 The hardware interface is subscribing to the following topics that drive the car:
 - `/accelerator_cmd` :arrow_left: throttle commands with `std_msgs/Float32` message type. The effective data range is $-2048.0$ to $2048.0$. Out-of-range values will be cropped to the nearest value. A positive value means driving the car forward. $2048.0$ corresponds to full throttle. A value around $170$ ~ $210$ will make the car start to move. From a broad observation, the throttle deadzone is about $180.0$, with about $15.0$ hysteresis. A negative value will put the car in reverse.
 - `/steering_cmd` :arrow_left: steering commands with `std_msgs/Float32` message type. The effective data range is $-2048.0$ to $2048.0$. Out-of-range values will be cropped to the nearest value. $2048.0$ indicates full *left* steering, and $-2048.0$ indicates full right steering. The steering angle on the front wheel is about $50^{\circ}$ (or $100^{\circ}$ end-to-end). A steering command around $\pm1000.0$ gives a turning radius of about $1$ meter.
+
 The throttle and steering commands are processed at $100$ Hz max frequency. Usually a $50$ Hz frequency is enough.
 
 The launch file starts a static transformation publisher that gives the frames of sensor measurements and their rigid transformations:
 - `/tf_static` :arrow_right: static transformations describing transformations from the base link of the car to onboard sensor reference frames. The frames are defined in `urdf/rallycar.urdf`.
+
 The hardware interface publishes measurements of an onboard IMU sensor. Due to memory limitations of the Arduino, the IMU data is transmitted in segments (`/imu/accelerometer`, `/imu/gyroscope`, `/imu/orientation`, and `/imu/stamp`. Students, please ignore these four topics, as you should never subscribe to them directly). An `imu_parser` node is started alongside to aggregate these segments and publishes:
 - `/imu` :arrow_right: aggregated IMU measurements with `sensor_msgs/Imu` message type. The topic provides full orientation, linear acceleration, and angular velocity measurements at $100$ Hz. The sensor frame is `imu_frame`. The orientation is relative to where the measurement starts. Gravitational acceleration is not removed.
+
 The laubch file also starts the Hokuyo UST-10LX 2-D LiDAR driver. The driver publishes at:
 - `/scan` :arrow_right: 2-D laser scans of the surroundings. The 1080 laser beams span 270 degrees, from right to left. The distance measurements of these beams refresh at $40$ Hz. Max range is 10 meters. The sensor frame is `laser`.
 Optionally, a launch file for Intel RealSense cameras is provided at `launch/include/realsense.launch`. Students who are interested in image processing can include this file to the `rallycar_hardware.launch`.
