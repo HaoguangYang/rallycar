@@ -98,7 +98,7 @@ As we are moving on, a Next-Generation of rallycar is emerging based on ROS2, po
 
 ## How to use the remote control
 
-![The rallycar remote control](resources/figures/remote-control.jpg)
+<img src="resources/figures/remote-control.jpg" alt="The rallycar remote control" width="500"/>
 A diagram of the remote control, powered on and operational.
 
 ### Remote control as a deadman switch
