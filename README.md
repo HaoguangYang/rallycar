@@ -79,7 +79,7 @@ This plugin is meant to be used with the path server in this package, and with t
     ```sh
     sudo poweroff
     ```
-    Finally, **do not forget to unplug the Li-ion battery** to the upper deck.
+    Finally, **do not forget to unplug the Li-ion battery** to the upper deck **and turn off the remote**.
 
 ## How to use the remote control
 
