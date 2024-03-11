@@ -69,7 +69,7 @@ This plugin is meant to be used with the path server in this package, and with t
 
     You can perform code development when the lower deck is not powered.
 
-3. Alternatively, you can open a remote desktop view of your car computer with [VNC Viewer (on Windows)](), [Remmina (on Linux)](), or [the builtin VNC client (on Mac)]. For address, enter `car-X.local` or `192.168.43.2XX` (remember to replace X with your car number) in the previous step. The VNC password is `nvidia`.
+3. Alternatively, you can open a remote desktop view of your car computer with [VNC Viewer (on Windows)](https://www.realvnc.com/en/connect/download/viewer/), [Remmina (on Linux)](https://remmina.org/how-to-install-remmina/#ubuntu), or the builtin VNC client (on Mac). For address, enter `car-X.local` or `192.168.43.2XX` (remember to replace X with your car number) in the previous step. The VNC password is `nvidia`.
 
 4. Turn on your remote control (RC) by toggling the switch on the rear of the remote to the right. A solid green LED should light up on the side of the remote.
 
