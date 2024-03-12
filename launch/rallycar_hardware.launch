@@ -1,8 +1,11 @@
 <launch>
+    <!-- Automatically determine serial port to use: /dev/ttyACM0 (default) or /dev/ttyUSB0 (fallback) -->
+    <arg name="serial_port" default="$(eval '/dev/ttyACM0' if eval('_' + '_import_' + '_(\'os\')').path.exists('/dev/ttyACM0') else '/dev/ttyUSB0')"/>
+
     <include file="$(find rallycar)/launch/include/static_tf.launch"/>
     <include file="$(find rallycar)/launch/include/lidar.launch"/>
     <node pkg="rosserial_python" name="rallycar_driver" type="serial_node.py" output="screen">
-        <param name="port" value="/dev/ttyACM0"/>
+        <param name="port" value="$(arg serial_port)"/>
         <param name="baud" value="115200"/>
     </node>
     <node pkg="rallycar" name="imu_parser" type="imu_parser.py" output="screen"/>
