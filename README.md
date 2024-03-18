@@ -50,9 +50,12 @@ This plugin is meant to be used with the path server in this package, and with t
     ```sh
     rosrun map_server map_saver -f ${MY_MAP_NAME}
     ```
-- `build_path.launch`: builds a new path with the provided map file and the path name. It starts the path server in `record` mode, loads the map, and starts an RViz instance for user interaction.
-- `load_map.launch`: snippet that loads the specified map file using `map_server`, which publishes the map under the `/map` topic.
-- `load_path.launch`: snippet that loads the specified path file using the path server under `publish` mode. It publishes the path under the `/desired_path` topic.
+- `build_path.launch`: builds a new path with the provided map file and the path name. It starts the path server in `record` mode, loads the map, and starts an RViz instance for user interaction. Please modify this file to point to the corrent file name you wish to save your trajectory with.
+  ![Build trajectory GUI](resources/figures/build-path-rviz.jpg)
+  The RViz loaded with the plugin to record and visualize user-clicked sequence of poses as a trajectory.
+
+- `load_map.launch`: snippet that loads the specified map file using `map_server`, which publishes the map under the `/map` topic. Please modify this file to point to the correct map file you wish to load.
+- `load_path.launch`: snippet that loads the specified path file using the path server under `publish` mode. It publishes the path under the `/desired_path` topic. Please modify this file to point to the correct trajectory you wish to load.
 
 ## Operating Procedure
 
