@@ -6,7 +6,7 @@
 // ROS Serial stuff
 #include <ros.h>
 #include <std_msgs/Float32.h>
-#include <geometry_msgs/Point32.h>  // a replacement for Point32 to save memory
+#include <geometry_msgs/Point32.h>  // a replacement for Vextor3 to save memory
 #include <std_msgs/ColorRGBA.h>     // a replacement for Quaternion to save memory
 #include <std_msgs/Time.h>
 namespace ros
@@ -27,10 +27,13 @@ const float escMax = 2000.0;
 const float steerRange = 2048.0;
 const float steerServoMin = 1000.0;
 const float steerServoMax = 2000.0;
+// if speed limiter is on the "trim" knob
 //const float spdLimiterMin = 1380.0;
-//const float spdLimiterMax = 1620.0;
-const float spdLimiterMin = 1500.0;
-const float spdLimiterMax = 2000.0;
+const float spdLimiterMin = 1470.0;
+const float spdLimiterMax = 1620.0;
+// if speed limiter is the actual "throttle" trigger
+//const float spdLimiterMin = 1500.0;
+//const float spdLimiterMax = 2000.0;
 
 const float steerServoZero = (steerServoMin + steerServoMax) * 0.5;
 const float escZero = (escMin + escMax) * 0.5;
@@ -50,7 +53,6 @@ ros::Publisher quatPub("imu/orientation", &quatMsg);
 ros::Publisher stampPub("imu/stamp", &rosTimeMsg);
 
 MPU6050 imu;
-uint16_t mpuDmpPacketSize;
 uint8_t fifoBuffer[64]; // FIFO storage buffer
 
 Servo eSC, steeringServo;
@@ -95,21 +97,29 @@ void setup(void) {
     delay(50);
     imu.initialize();
   }
+  int16_t gyroOffset[3], accelOffset[3];
+  imu.CoarseCalibrate(&gyroOffset[0], &accelOffset[0]);
   while (imu.dmpInitialize()) {
     delay(50);
   }
 
   // supply your own gyro offsets here, scaled for min sensitivity
-	imu.setXGyroOffset(220);
-	imu.setYGyroOffset(76);
-	imu.setZGyroOffset(-85);
-	imu.setZAccelOffset(1788); // 1688 factory default for my test chip
+  /*
+  imu.setXGyroOffset(220);
+  imu.setYGyroOffset(76);
+  imu.setZGyroOffset(-85);
+  imu.setZAccelOffset(1788); // 1688 factory default for my test chip
+  */
+  imu.setXGyroOffset(gyroOffset[0]);
+  imu.setYGyroOffset(gyroOffset[1]);
+  imu.setZGyroOffset(gyroOffset[2]);
+  imu.setXAccelOffset(accelOffset[0]);
+  imu.setYAccelOffset(accelOffset[1]);
+  imu.setZAccelOffset(accelOffset[2]);
+  // fine-tune
   imu.CalibrateAccel(6);
   imu.CalibrateGyro(6);
   imu.setDMPEnabled(true);
-  // get expected DMP packet size for later comparison
-	mpuDmpPacketSize = imu.dmpGetFIFOPacketSize();
-  digitalWrite(LED_PIN, HIGH);
 
   // Initialize drive by wire
   steeringServo.attach(STEER_PIN);      // Steer servo connected
@@ -123,33 +133,39 @@ void setup(void) {
   // External hardware interrupt is attached to the pin and the interrupt is set to trigger on 'CHANGE'
   // in state of pin. On trigger the Interrupt service routing trimPulseTimer is called.
   attachInterrupt(digitalPinToInterrupt(SPEED_LIMITER_PIN), trimPulseTimer, CHANGE);
+
+  digitalWrite(LED_PIN, HIGH);
 }
 
-void GetIMUData(geometry_msgs::Point32* acc, geometry_msgs::Point32* gyro, std_msgs::ColorRGBA* quat) {
-	// At least one data packet is available
-	uint8_t mpuIntStatus = imu.getIntStatus();
-	uint16_t fifoCount = imu.getFIFOCount();// get current FIFO count
+bool GetIMUData(std_msgs::Time* time, geometry_msgs::Point32* acc, geometry_msgs::Point32* gyro, std_msgs::ColorRGBA* quat) {
+  bool ret = false;
+  const uint16_t mpuDmpPacketSize = imu.dmpGetFIFOPacketSize();
+  uint16_t fifoCount = imu.getFIFOCount();// get current FIFO count
+  // packets not ready yet
+  if (fifoCount < mpuDmpPacketSize) return ret;
 
-	// check for overflow (this should never happen unless our code is too inefficient)
-	if ((mpuIntStatus & _BV(MPU6050_INTERRUPT_FIFO_OFLOW_BIT)) || fifoCount >= 1024)
-	{
-		// reset so we can continue cleanly
-		imu.resetFIFO();
-		// Serial.println(F("FIFO overflow!"));
+  // At least one data packet is available
+  time->data = nh.now();
 
-		// otherwise, check for DMP data ready interrupt (this should happen frequently)
-	}
-	else if (mpuIntStatus & _BV(MPU6050_INTERRUPT_DMP_INT_BIT))
-	{
-		// read all available packets from FIFO
-		while (fifoCount >= mpuDmpPacketSize) // Lets catch up to NOW, in case someone is using the dreaded delay()!
-		{
-			imu.getFIFOBytes(fifoBuffer, mpuDmpPacketSize);
-			// track FIFO count here in case there is > 1 packet available
-			// (this lets us immediately read more without waiting for an interrupt)
-			fifoCount -= mpuDmpPacketSize;
-		}
-		// global_fifo_count = imu.getFIFOCount(); //should be zero here
+  uint8_t mpuIntStatus = imu.getIntStatus();
+
+  // check for overflow (this should never happen unless our code is too inefficient)
+  if ((mpuIntStatus & _BV(MPU6050_INTERRUPT_FIFO_OFLOW_BIT)) || fifoCount >= 1024) {
+    // reset so we can continue cleanly
+    imu.resetFIFO();
+    // Serial.println(F("FIFO overflow!"));
+
+    // otherwise, check for DMP data ready interrupt (this should happen frequently)
+  } else if (mpuIntStatus & _BV(MPU6050_INTERRUPT_DMP_INT_BIT)) {
+    // read all available packets from FIFO
+    while (fifoCount >= mpuDmpPacketSize) {
+      // Lets catch up to NOW, in case someone is using the dreaded delay()!
+      imu.getFIFOBytes(fifoBuffer, mpuDmpPacketSize);
+      // track FIFO count here in case there is > 1 packet available
+      // (this lets us immediately read more without waiting for an interrupt)
+      fifoCount -= mpuDmpPacketSize;
+    }
+    // global_fifo_count = imu.getFIFOCount(); //should be zero here
 
     // get orientation in quaternion
     int16_t outRaw[4];
@@ -159,6 +175,7 @@ void GetIMUData(geometry_msgs::Point32* acc, geometry_msgs::Point32* gyro, std_m
       quat->r = (float)outRaw[1] * scalingFactor;
       quat->g = (float)outRaw[2] * scalingFactor;
       quat->b = (float)outRaw[3] * scalingFactor;
+      ret = true;
     }
 
     if (!imu.dmpGetAccel(outRaw, fifoBuffer)) {
@@ -166,6 +183,7 @@ void GetIMUData(geometry_msgs::Point32* acc, geometry_msgs::Point32* gyro, std_m
       acc->x = outRaw[0] * scalingFactor;
       acc->y = outRaw[1] * scalingFactor;
       acc->z = outRaw[2] * scalingFactor;
+      ret = true;
     }
 
     if (!imu.dmpGetGyro(outRaw, fifoBuffer)) {
@@ -173,21 +191,20 @@ void GetIMUData(geometry_msgs::Point32* acc, geometry_msgs::Point32* gyro, std_m
       gyro->x = outRaw[0] * scalingFactor;
       gyro->y = outRaw[1] * scalingFactor;
       gyro->z = outRaw[2] * scalingFactor;
+      ret = true;
     }
-	}
+  }
+  return ret;
 }
 
 void loop() {
-  if (imu.dmpPacketAvailable())
-	{
-    rosTimeMsg.data = nh.now();
-    //retreive the most current accel/gyro/orientation values from IMU
-		GetIMUData(&accMsg, &gyroMsg, &quatMsg);
+  //retreive the most current accel/gyro/orientation values from IMU
+  if (GetIMUData(&rosTimeMsg, &accMsg, &gyroMsg, &quatMsg)) {
     accPub.publish(&accMsg);
     gyroPub.publish(&gyroMsg);
     quatPub.publish(&quatMsg);
     stampPub.publish(&rosTimeMsg);
-	}
+  }
   // throttle watchdog times out at 2 seconds
   uint8_t secNow = (uint8_t)((micros() >> 20) & 0xFF);
   if (secNow - throttleWatchdogSeconds > 2) eSC.writeMicroseconds((int)escZero);

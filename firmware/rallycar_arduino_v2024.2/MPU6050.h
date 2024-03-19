@@ -718,7 +718,7 @@ class MPU6050_Base {
 
         // FIFO_R_W register
         uint8_t getFIFOByte();
-		int8_t GetCurrentFIFOPacket(uint8_t *data, uint8_t length);
+		    int8_t GetCurrentFIFOPacket(uint8_t *data, uint8_t length);
         void setFIFOByte(uint8_t data);
         void getFIFOBytes(uint8_t *data, uint8_t length);
         void setFIFOTimeout(uint32_t fifoTimeout);
@@ -828,6 +828,7 @@ class MPU6050_Base {
         void setDMPConfig2(uint8_t config);
 
 		// Calibration Routines
+    void CoarseCalibrate(int16_t* gyro_bias_out, int16_t* accel_bias_out);
 		void CalibrateGyro(uint8_t Loops = 15); // Fine tune after setting offsets with less Loops.
 		void CalibrateAccel(uint8_t Loops = 15);// Fine tune after setting offsets with less Loops.
 		void PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops);  // Does the math
