@@ -17560,6 +17560,11 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 200015de-9a7d-4814-a7cf-f02a48ec231c)
   )
+  (text "Radio Control:\n- Ch1/Ch2: Steering wheel + Trim\n- Ch3: Trigger\n- Ch4+: Void"
+    (at 194.31 35.56 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 2aca7716-2816-458f-9070-743971919ce7)
+  )
   (text "I/O Board" (at 59.69 24.13 0)
     (effects (font (size 3 3) (thickness 0.6) bold) (justify left bottom))
     (uuid 38c90367-b908-449a-8b8b-7d049655129b)
@@ -17582,7 +17587,7 @@
   (symbol (lib_id "Connector:Conn_01x03_Male") (at 166.37 60.96 0) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 00e27c3e-a823-4f6f-b568-0697af3b0ee2)
-    (property "Reference" "RC_Ch3" (id 0) (at 167.005 53.34 0))
+    (property "Reference" "RC_Ch1" (id 0) (at 167.005 53.34 0))
     (property "Value" "Conn_01x03_Male" (id 1) (at 167.005 55.88 0))
     (property "Footprint" "" (id 2) (at 166.37 60.96 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -17833,7 +17838,7 @@
   (symbol (lib_id "Connector:Conn_01x03_Male") (at 166.37 46.99 0) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid dc2d99f5-d24a-4a43-93c5-d8a68bf9c6b0)
-    (property "Reference" "RC_Ch1" (id 0) (at 167.005 39.37 0))
+    (property "Reference" "RC_Ch2/Ch3" (id 0) (at 167.005 39.37 0))
     (property "Value" "Conn_01x03_Male" (id 1) (at 167.005 41.91 0))
     (property "Footprint" "" (id 2) (at 166.37 46.99 0)
       (effects (font (size 1.27 1.27)) hide)
@@ -17911,11 +17916,11 @@
     (path "/7497b4d3-1ddd-4f14-acfa-26a836ecfea5"
       (reference "MPU_6050_Module") (unit 1) (value "Conn_01x08_Male_Stub") (footprint "")
     )
-    (path "/dc2d99f5-d24a-4a43-93c5-d8a68bf9c6b0"
+    (path "/00e27c3e-a823-4f6f-b568-0697af3b0ee2"
       (reference "RC_Ch1") (unit 1) (value "Conn_01x03_Male") (footprint "")
     )
-    (path "/00e27c3e-a823-4f6f-b568-0697af3b0ee2"
-      (reference "RC_Ch3") (unit 1) (value "Conn_01x03_Male") (footprint "")
+    (path "/dc2d99f5-d24a-4a43-93c5-d8a68bf9c6b0"
+      (reference "RC_Ch2/Ch3") (unit 1) (value "Conn_01x03_Male") (footprint "")
     )
     (path "/57ed8993-e622-4edd-a033-210feb1c46a1"
       (reference "Steering_Servo") (unit 1) (value "Conn_01x03_Female") (footprint "")

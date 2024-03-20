@@ -29,7 +29,7 @@ const float steerServoMin = 1000.0;
 const float steerServoMax = 2000.0;
 // if speed limiter is on the "trim" knob
 //const float spdLimiterMin = 1380.0;
-const float spdLimiterMin = 1470.0;
+const float spdLimiterMin = 1479.0;   // starting slightly below the middle s.t. the car will not move when RC powers off.
 const float spdLimiterMax = 1620.0;
 // if speed limiter is the actual "throttle" trigger
 //const float spdLimiterMin = 1500.0;

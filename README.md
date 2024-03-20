@@ -19,9 +19,9 @@ The launch file starts a static transformation publisher that gives the frames o
 - `/tf_static` :arrow_right: static transformations describing transformations from the base link of the car to onboard sensor reference frames. The frames are defined in `urdf/rallycar.urdf`.
 
 The hardware interface publishes measurements of an onboard IMU sensor. Due to the memory limitations of the Arduino, the IMU data is transmitted in segments (`/imu/accelerometer`, `/imu/gyroscope`, `/imu/orientation`, and `/imu/stamp`. Students, please ignore these four topics, as you should *never* subscribe to them directly). An `imu_parser` node is started alongside to aggregate these segments and publishes:
-- `/imu` :arrow_right: aggregated IMU measurements with `sensor_msgs/Imu` message type. The topic provides full orientation, linear acceleration, and angular velocity measurements at $100$ Hz. The sensor frame is `imu_frame`. The orientation is relative to where the measurement starts. Gravitational acceleration is not removed.
+- `/imu` :arrow_right: aggregated IMU measurements with `sensor_msgs/Imu` message type. The topic provides full orientation, linear acceleration, and angular velocity measurements at $100$ Hz. The sensor frame is `imu_frame`. The orientation is relative to where the measurement starts (i.e. where the `rallycar_hardware.launch` is launched). Gravitational acceleration is not removed.
 
-The laubch file also starts the Hokuyo UST-10LX 2-D LiDAR driver. The driver publishes at:
+The launch file also starts the Hokuyo UST-10LX 2-D LiDAR driver. The driver publishes at:
 - `/scan` :arrow_right: 2-D laser scans of the surroundings. The 1080 laser beams span 270 degrees, from right to left. The distance measurements of these beams refresh at $40$ Hz. The max range is 10 meters. The sensor frame is `laser`.
 Optionally, a launch file for Intel RealSense cameras is provided at `launch/include/realsense.launch`. Students who are interested in image processing can include this file in the `rallycar_hardware.launch`.
 
@@ -44,6 +44,9 @@ In case you mistakenly picked a goal pose and want to delete it, activate the `R
 
 This plugin is meant to be used with the path server in this package, and with the `resources/rviz_configs/build_path.rviz` RViz configuration.
 
+![Build trajectory GUI](resources/figures/build-path-rviz.jpg)
+The RViz loaded with the plugin to record and visualize user-clicked sequence of poses as a trajectory.
+
 ## Provided launch file snippets
 - `rallycar_hardware.launch`: brings up rallycar hardware -- motor driver, LiDAR scanner, and static transforms defined by the URDF of the robot.
 - `build_map.launch`: builds new map using `hector_mapping` in a no-wheel-odometer setup. To save the map to the disk when finished, the user needs to execute (provide your actual map name):
@@ -51,15 +54,12 @@ This plugin is meant to be used with the path server in this package, and with t
     rosrun map_server map_saver -f ${MY_MAP_NAME}
     ```
 - `build_path.launch`: builds a new path with the provided map file and the path name. It starts the path server in `record` mode, loads the map, and starts an RViz instance for user interaction. Please modify this file to point to the corrent file name you wish to save your trajectory with.
-  ![Build trajectory GUI](resources/figures/build-path-rviz.jpg)
-  The RViz loaded with the plugin to record and visualize user-clicked sequence of poses as a trajectory.
-
 - `load_map.launch`: snippet that loads the specified map file using `map_server`, which publishes the map under the `/map` topic. Please modify this file to point to the correct map file you wish to load.
 - `load_path.launch`: snippet that loads the specified path file using the path server under `publish` mode. It publishes the path under the `/desired_path` topic. Please modify this file to point to the correct trajectory you wish to load.
 
 ## Operating Procedure
 
-1. Connect the electronics battery (Li-ion) to the upper deck plug. The upper deck electronics should receive power now and you will be able to hear the LiDAR spinning up. Press the `POWER BTN` button on the Nvidia board to power up the computer (fourth button starting from the corner). You should see a white light lit up on the IMU circuit board at the front of the car when the system is ready.
+1. Connect the electronics battery (Li-ion) to the upper deck plug. The upper deck electronics should receive power now and you will be able to hear the LiDAR spinning up. Press the `POWER BTN` button on the Nvidia board to power up the computer (fourth button starting from the corner). You should see an LED lit up on the IMU circuit board at the front of the car when the system is booted.
 
 2. The cars automatically connect to the `ROSlab` WiFi that the instructor sets up. To remotely connect to your car, you need to be on the same WiFi. Log into your car with the user name `nvidia`:
     ```sh
@@ -77,7 +77,9 @@ This plugin is meant to be used with the path server in this package, and with t
 
 5. Connect the motor battery (Ni-MH) to the blue Electronic Speed Controller (ESC) on the lower deck. Press the button on the ESC to power it up. You should see a solid green LED on the ESC, as well as on the radio receiver (a smaller cube further inside the lower deck of the car).
 
-6. Put your car on a safe stand, or put it on a flat ground if you are running with IMU. You can start your code now. Wait until the `L` LED and the `TX` LED on the Arduino light up (it may take up to three seconds). Your car is ready to go.
+**NOTE**: Before proceeding, please check that there is NO blinking LEDs on the car at this step.
+
+6. Put your car on a safe stand, or put it on a solid flat ground without moving it. You can start your code now. At code startup, the IMU will calibrate itself for up to six seconds. This means if you are using the IMU measurements, you need to place the car on a stationary flat surface and do not move the car **before** you launch anything containing `rallycar_hardware.launch`, and do not touch the car after the code startup. Wait until the `L` LED and the `TX` LED on the Arduino light up (it may take up to six seconds). Now you are safe to move the car (either by carrying it or by itself).
 
 7. When you have finished, power down the ESC by pressing the button on the ESC for 2 seconds. Power down the onboard computer through the graphical desktop, or by the command:
     ```sh
@@ -104,16 +106,18 @@ As we are moving on, a Next-Generation of rallycar is emerging based on ROS2, po
 A diagram of the remote control, powered on and operational.
 
 ### Remote control as a deadman switch
-To prevent the car from losing control, multiple safety features are implemented on the hardware. Since the car will drive itself, we no longer need the remote to steer the car. However, we repurpose the remote control as a safety mechanism known as the "deadman switch". To keep the car moving, the deadman switch must be online and pressed. For our remote, to activate the driving motor on the car, we need to:
+To prevent the car from losing control, multiple safety features are implemented on the hardware. Since the car will drive itself, we no longer need the remote to steer the car. However, we repurpose the remote control as a safety mechanism known as the "deadman switch". To keep the car moving, the deadman switch must be online and set. For our remote, to activate the driving motor on the car, we need to:
 
 - pair it to the car,
 - power it on, and
-- hold down the throttle trigger.
+- turn the "trim" knob above the middle point.
 
-Missing any one of the three conditions will disable the driving motor. Furthermore, the travel of the trigger will act as a limiter to the maximum percentage of power applied to the driving motor.
+Missing any one of the three conditions will disable the driving motor. Furthermore, the travel of the "trim" knob will act as a limiter to the maximum percentage of power applied to the driving motor.
+
+**NOTE**: Do NOT touch the steering wheel, as with the current design it will interfere with the "trim" knob.
 
 ### Pairing the remote with the car
-If your radio receiver on the car has a fast-blinking (~3Hz) red LED when turned on, you need to pair your remote with the car. To perform pairing:
+If your **radio receiver** on the car has a fast-blinking (~3Hz) red LED when turned on, and your remote control is on with a solid green LED, you need to pair your remote with the car. To perform pairing:
 
 1. First make sure the ESC is off. Press and hold the pairing button on the radio receiver, and turn on the ESC **with the pairing button remaining pressed**. You should see the red LED on the receiver slowly (~1Hz) blinking red, indicating the pairing mode.
 
@@ -123,6 +127,23 @@ If your radio receiver on the car has a fast-blinking (~3Hz) red LED when turned
 The remote uses 4xAA batteries. If the LED on the remote turns red and blinks fast (~3Hz), you need to replace the batteries. The battery compartment is at the bottom of the remote.
 
 **Remember to turn off the remote after each test!**
+
+## Battery notes
+We use two battery packs for each car: the power battery for the lower deck (NiMH 6S 7.2V or NiMH 7S 8.4V), and the electronics battery for the upper deck (Lithium-ion 3S 11.1V). The power battery is connected directly to the ESC module at the lower deck, and the electronics battery is connected to the battery protection board on the upper deck. The connectors are both TRX 2-pin plugs. When connecting, please ideltify the polarity by the red wire.
+
+The discharge of the power battery is managed by the ESC. If your ESC is flashing red LED and refuses to turn on the driving motor, you should consider recharging the power battery.
+
+The electronic battery, however, requires more careful handling for discharge. As a Li-ion battery, its lifespan can be significantly damaged by overdischarging or overcharging. As a result, our battery protection boards have set a 10.0V hard-cutoff voltage (all upper deck electronics will be forced power-off as the Lithium battery drops below 10V). These Lithium batteries have a fully-charged voltage of 12.6V, and their discharge curve is relatively shallow in the range of 11.4V to 10.8V. This means their output voltage will quickly drop once leaving this region. On daily operations, you should consider recharging them as soon as the voltage drops below 11V, and use the "Balance" mode (default) on the charger.
+
+To check the output voltage of the electronic battery, you can refer to the default display on the battery protection board, shown as below:
+<img src="resources/figures/XH-M609.jpg" alt="The battery protection board" width="500"/>
+An illustration of the battery protection board. Students, please do not touch the two buttons on the PCB.
+
+Alternatively, as some of the cars have this board mounted beneath the upper deck, making it hard to read, you can check the readout on the DC-DC boost converter. Please press the button on the converter, such that the "IN" LED (or the LED closer to the "IN" side) is lit. The numbers on the digital display then corresponds to the battery voltage. Alternatively, you can toggle the button and read the lower of the two numbers as the battery voltage.
+<img src="resources/figures/LM2596S.jpg" alt="The DC-DC boost converter" width="500"/>
+An illustration of the DC-DC boost converter board, and the button/LED to distinguish.
+
+**Remember to unplug all batteries when you finish testing!**
 
 ## Troubleshooting
 
