@@ -102,7 +102,8 @@ As we are moving on, a Next-Generation of rallycar is emerging based on ROS2, po
 
 ## How to use the remote control
 
-<img src="resources/figures/remote-control.jpg" alt="The rallycar remote control" width="500"/>
+<img src="resources/figures/remote-control.jpg" alt="The rallycar remote control" width="450"/>
+
 A diagram of the remote control, powered on and operational.
 
 ### Remote control as a deadman switch
@@ -136,11 +137,15 @@ The discharge of the power battery is managed by the ESC. If your ESC is flashin
 The electronic battery, however, requires more careful handling for discharge. As a Li-ion battery, its lifespan can be significantly damaged by overdischarging or overcharging. As a result, our battery protection boards have set a 10.0V hard-cutoff voltage (all upper deck electronics will be forced power-off as the Lithium battery drops below 10V). These Lithium batteries have a fully-charged voltage of 12.6V, and their discharge curve is relatively shallow in the range of 11.4V to 10.8V. This means their output voltage will quickly drop once leaving this region. On daily operations, you should consider recharging them as soon as the voltage drops below 11V, and use the "Balance" mode (default) on the charger.
 
 To check the output voltage of the electronic battery, you can refer to the default display on the battery protection board, shown as below:
-<img src="resources/figures/XH-M609.jpg" alt="The battery protection board" width="500"/>
+
+<img src="resources/figures/XH-M609.jpg" alt="The battery protection board" width="350"/>
+
 An illustration of the battery protection board. Students, please do not touch the two buttons on the PCB.
 
 Alternatively, as some of the cars have this board mounted beneath the upper deck, making it hard to read, you can check the readout on the DC-DC boost converter. Please press the button on the converter, such that the "IN" LED (or the LED closer to the "IN" side) is lit. The numbers on the digital display then corresponds to the battery voltage. Alternatively, you can toggle the button and read the lower of the two numbers as the battery voltage.
-<img src="resources/figures/LM2596S.jpg" alt="The DC-DC boost converter" width="500"/>
+
+<img src="resources/figures/LM2596S.jpg" alt="The DC-DC boost converter" width="350"/>
+
 An illustration of the DC-DC boost converter board, and the button/LED to distinguish.
 
 **Remember to unplug all batteries when you finish testing!**
