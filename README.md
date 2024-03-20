@@ -144,7 +144,7 @@ An illustration of the battery protection board. Students, please do not touch t
 
 Alternatively, as some of the cars have this board mounted beneath the upper deck, making it hard to read, you can check the readout on the DC-DC boost converter. Please press the button on the converter, such that the "IN" LED (or the LED closer to the "IN" side) is lit. The numbers on the digital display then corresponds to the battery voltage. Alternatively, you can toggle the button and read the lower of the two numbers as the battery voltage.
 
-<img src="resources/figures/LM2596S.jpg" alt="The DC-DC boost converter" width="350"/>
+<img src="resources/figures/LM2577S.jpg" alt="Illustration of the LM2577S DC-DC boost converter" width="350"/>
 
 An illustration of the DC-DC boost converter board, and the button/LED to distinguish.
 
