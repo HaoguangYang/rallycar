@@ -77,7 +77,7 @@ The RViz loaded with the plugin to record and visualize user-clicked sequence of
 
 5. Connect the motor battery (Ni-MH) to the blue Electronic Speed Controller (ESC) on the lower deck. Press the button on the ESC to power it up. You should see a solid green LED on the ESC, as well as on the radio receiver (a smaller cube further inside the lower deck of the car).
 
-**NOTE**: Before proceeding, please check that there is NO blinking LEDs on the car at this step.
+    **NOTE**: Before proceeding, please check that there is NO blinking LEDs on the car at this step.
 
 6. Put your car on a safe stand, or put it on a solid flat ground without moving it. You can start your code now. At code startup, the IMU will calibrate itself for up to six seconds. This means if you are using the IMU measurements, you need to place the car on a stationary flat surface and do not move the car **before** you launch anything containing `rallycar_hardware.launch`, and do not touch the car after the code startup. Wait until the `L` LED and the `TX` LED on the Arduino light up (it may take up to six seconds). Now you are safe to move the car (either by carrying it or by itself).
 

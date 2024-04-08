@@ -1,91 +1,73 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.8)
 project(rallycar)
 
-add_compile_options(-std=c++11)
-
-find_package(catkin REQUIRED COMPONENTS
-  rospy
-  std_msgs
-  sensor_msgs
-  robot_state_publisher
-  urg_node
-  hector_mapping
-  map_server
-  rviz
-)
-
-catkin_package()
-
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
-
-# below adopted from rviz_plugin_tutorials
-catkin_package()
-link_directories(${catkin_LIBRARY_DIRS})
-
-## This setting causes Qt's "MOC" generation to happen automatically.
-set(CMAKE_AUTOMOC ON)
-
-## This plugin includes Qt widgets, so we must include Qt.
-## We'll use the version that rviz used so they are compatible.
-if(rviz_QT_VERSION VERSION_LESS "5")
-  message(STATUS "Using Qt4 based on the rviz_QT_VERSION: ${rviz_QT_VERSION}")
-  find_package(Qt4 ${rviz_QT_VERSION} EXACT REQUIRED QtCore QtGui)
-  ## pull in all required include dirs, define QT_LIBRARIES, etc.
-  include(${QT_USE_FILE})
-else()
-  message(STATUS "Using Qt5 based on the rviz_QT_VERSION: ${rviz_QT_VERSION}")
-  find_package(Qt5 ${rviz_QT_VERSION} EXACT REQUIRED Core Widgets)
-  ## make target_link_libraries(${QT_LIBRARIES}) pull in all required dependencies
-  set(QT_LIBRARIES Qt5::Widgets)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-## I prefer the Qt signals and slots to avoid defining "emit", "slots",
-## etc because they can conflict with boost signals, so define QT_NO_KEYWORDS here.
-add_definitions(-DQT_NO_KEYWORDS)
+# Default to C99
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
 
-## Here we specify the list of source files.
-## The generated MOC files are included automatically as headers.
-set(SRC_FILES
-  src/remove_last_nav_goal_tool.cpp
+# Default to C++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
+# find dependencies
+find_package(ament_cmake_auto REQUIRED)
+
+ament_auto_find_build_dependencies()
+
+ament_auto_add_library(rallycar_driver_lib SHARED
+  src/serial_impl.cc
+  src/serial.cc
+  src/rallycar_driver_node.cpp
 )
 
-## An rviz plugin is just a shared library, so here we declare the
-## library to be called ``${PROJECT_NAME}`` (which is
-## "rviz_plugin_tutorials", or whatever your version of this project
-## is called) and specify the list of source files we collected above
-## in ``${SRC_FILES}``.
-add_library(${PROJECT_NAME}_rviz_plugin ${SRC_FILES})
-
-## Link the myviz executable with whatever Qt libraries have been defined by
-## the ``find_package(Qt4 ...)`` line above, or by the
-## ``set(QT_LIBRARIES Qt5::Widgets)``, and with whatever libraries
-## catkin has included.
-##
-## Although this puts "rviz_plugin_tutorials" (or whatever you have
-## called the project) as the name of the library, cmake knows it is a
-## library and names the actual file something like
-## "librviz_plugin_tutorials.so", or whatever is appropriate for your
-## particular OS.
-target_link_libraries(${PROJECT_NAME}_rviz_plugin ${QT_LIBRARIES} ${catkin_LIBRARIES})
-## END_TUTORIAL
-
-## Install rules
-
-install(TARGETS
-  ${PROJECT_NAME}_rviz_plugin
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+rclcpp_components_register_node(rallycar_driver_lib
+  PLUGIN "rallycar::RallycarDriverNode"
+  EXECUTABLE rallycar_driver_node
 )
 
-install(FILES
-  plugin_description.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+# tests
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_lint_auto REQUIRED)
 
-install(DIRECTORY media/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/media)
+  #ament_add_gtest(${PROJECT_NAME}_gtest test/rallycar_driver_test.cpp)
+  #target_link_libraries(${PROJECT_NAME}_gtest ${rclcpp_LIBRARIES} ${rmw_connext_cpp_LIBRARIES} ${std_interfaces} ${TARGET_LIB_NAME})
 
-install(DIRECTORY icons/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/icons)
+  # the following line skips the linter which checks for copyrights
+  # uncomment the line when a copyright and license is not present in all source files
+  set(ament_cmake_copyright_FOUND TRUE)
+  # the following line skips cpplint (only works in a git repo)
+  # uncomment the line when this package is not in a git repo
+  #set(ament_cmake_cpplint_FOUND TRUE)
+
+  # Temporarily disable uncrustify
+  list(APPEND AMENT_LINT_AUTO_EXCLUDE
+    ament_cmake_uncrustify
+  )
+
+  ament_lint_auto_find_test_dependencies()
+
+  # make ament_uncrustify skip C/C++ files.
+  file(GLOB_RECURSE FILES_MINUS_SOME
+    ${CMAKE_CURRENT_SOURCE_DIR}/*
+  )
+  list(FILTER FILES_MINUS_SOME EXCLUDE REGEX ".*\.(cpp|hpp|cc|hh|c|h)")
+  # Re-enable uncrustify
+  if(FILES_MINUS_SOME)
+    find_package(ament_cmake_uncrustify)
+    ament_uncrustify(${FILES_MINUS_SOME})
+  endif()
+
+endif()
+
+# export information to downstream packages
+ament_auto_package(
+  CONFIG_EXTRAS "${PROJECT_NAME}-extras.cmake"
+  INSTALL_TO_SHARE resources
+)
