@@ -8,6 +8,7 @@
 // for serial communication in Linux
 #include "serial.h"
 #include "serial_impl.h"
+#include <cstdlib>
 
 template <uint16_t RX_MTU = 256, uint16_t TX_MTU = 256, uint8_t MAX_ENDPOINTS = 64>
 class SerialCommsInterface {
@@ -95,7 +96,7 @@ public:
 
     void returnEndpointBuffer(const uint16_t& size) {
         if (size)
-            framer.sendFrame((const char*)txBuffer, size+2);
+            framer.sendFrame((const char*)(&txBuffer[0]), size+2);
         txBufferLocked = false;
     }
 

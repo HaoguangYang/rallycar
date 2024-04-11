@@ -25,7 +25,6 @@ template<class Hardware,
          uint16_t TX_MTU = 512>
 class Node_ : public NodeBase {
 private:
-    NodeState state = NodeState::OUT_OF_SYNC;
     uint8_t txBuffer[TX_MTU];
     bool txBufferLocked = false;
     Hardware* hw_;
@@ -37,6 +36,8 @@ private:
     uint8_t max_stream_record = 0;
 
 protected:
+    NodeState state = NodeState::OUT_OF_SYNC;
+
     void reset() {
         state = NodeState::OUT_OF_SYNC;
         onReset();
@@ -82,8 +83,10 @@ public:
     WallClock<Hardware>* get_clock() const { return &clock; }
 
     void spin() {
-        while (int data = hw_->read() >= 0) {
+        int data = hw_->read();
+        while (data >= 0) {
             this->framer->receiveChar((uint8_t)data);
+            data = hw_->read();
         }
         if (state == NodeState::RUNNING) {
             for (uint8_t n = 0; n < timerCount; n++) {

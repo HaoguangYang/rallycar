@@ -42,6 +42,9 @@ public:
     }
 
     void pub_ros_imu(const SerialImuRaw& msg) {
+        imu.header.stamp.sec = msg.stamp.sec;
+        imu.header.stamp.nanosec = msg.stamp.nanosec;
+
         imu.orientation.x = msg.orientation.x;
         imu.orientation.y = msg.orientation.y;
         imu.orientation.z = msg.orientation.z;

@@ -196,7 +196,7 @@ public:
                 has_update = true;
             }
 
-            if (has_update)
+            if (has_update && state == NodeState::RUNNING)
                 imu_pub.publish(imu_data);
         }
     }

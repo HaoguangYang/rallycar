@@ -87,7 +87,7 @@ public:
         uint8_t staleness = (uint8_t)time_rounding::uSecToSecFast(
             hw_->time() - last_sync_micros);
         uint16_t ret = 0;
-        if (staleness >= sync_interval)
+        if (staleness >= sync_interval || (!synced && !last_sync_micros && !last_sync_successful))
             ret = syncInit(txBuffer);
         return ret;
     }

@@ -61,7 +61,7 @@ class HdlcBase {
             /* If a valid frame is detected */
             else if ( (this->frame_position >= 2) &&
                       ( this->frame_checksum == (
-                        (this->receive_frame_buffer[this->frame_position-1] << 8 ) |
+                        (uint16_t)(this->receive_frame_buffer[this->frame_position-1] << 8 ) |
                         (this->receive_frame_buffer[this->frame_position-2] & 0xff))
                       )
                     )  // (msb << 8 ) | (lsb & 0xff)
@@ -87,7 +87,7 @@ class HdlcBase {
 
         receive_frame_buffer[this->frame_position] = data;
 
-        if(this->frame_position-2 >= 0) {
+        if(this->frame_position >= 2) {
             this->frame_checksum = _crc_ccitt_update(this->frame_checksum, receive_frame_buffer[this->frame_position-2]);
         }
 
@@ -144,7 +144,7 @@ class HdlcBase {
     uint8_t * receive_frame_buffer;
     uint16_t frame_position;
     uint16_t frame_checksum;  // 16bit CRC sum for _crc_ccitt_update
-	  uint16_t mtu;
+    uint16_t mtu;
     bool escape_character;
 };
 
