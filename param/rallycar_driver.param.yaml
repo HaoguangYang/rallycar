@@ -1,0 +1,4 @@
+rallycar_driver_node:
+  ros__parameters:
+    serial_port_baudrate: 115200
+    imu_frame_id: "imu_frame"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import rospy
+import rclpy
 import yaml
 from nav_msgs.msg import Path
 from geometry_msgs.msg import Pose, Point, Quaternion, PoseStamped
@@ -19,24 +19,23 @@ filename specified as a yaml file.
 """
 
 def list_of_pose_dict_to_path_msg(inp):
-    path = Path(header=Header(stamp=rospy.Time.now(),
-                            frame_id="map"))
+    path = Path()
+    path.header.stamp = rclpy.now()
+    path.header.frame_id = "map"
     path.poses = []
     for item in inp:
-        path.poses.append(PoseStamped(
-            header=Header(frame_id="map"),
-            pose=Pose(position=Point(
-                item['position']['x'], item['position']['y'], item['position']['z']
-            ),
-                orientation=Quaternion(
-                    item['orientation']['x'], item['orientation']['y'],
-                    item['orientation']['z'], item['orientation']['w']
-            ))
-        ))
+        p = PoseStamped()
+        p.header.frame_id = "map"
+        (p.pose.position.x, p.pose.position.y, p.pose.position.z) =
+            (item['position']['x'], item['position']['y'], item['position']['z'])
+        (p.pose.orientation.x, p.pose.orientation.y, p.pose.orientation.z, p.pose.orientation.w) =
+            (item['orientation']['x'], item['orientation']['y'],
+             item['orientation']['z'], item['orientation']['w'])
+        path.poses.append(p)
     return path
 
 
-class PathServer:
+class PathServer(Node):
     """The Path Server mode, invoked when running in publish mode.
     """
 
@@ -50,11 +49,14 @@ class PathServer:
             inp = yaml.safe_load(f)
         self.path = list_of_pose_dict_to_path_msg(inp)
         print(self.path)
-        self.path_pub = rospy.Publisher("/desired_path", Path, latch=True, queue_size=1)
+        qos = rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value
+        qos.history = rclpy.qos.HistoryPolicy.KEEP_LAST.value
+        qos.durability = rclpy.qos.DurabilityPolicy.TRANSIENT_LOCAL.value
+        self.path_pub = self.create_publisher(Path, "/desired_path", qos)
         self.path_pub.publish(self.path)
 
 
-class PathRecorder:
+class PathRecorder(Node):
     """The Path Recorder mode, invoked when running in record mode.
     """
 
@@ -66,12 +68,11 @@ class PathRecorder:
             file_name (str): path file name to save with.
         """
         self.path_file = file_name
-        rospy.on_shutdown(self.save_path)
         self.path = []
-        self.path_sub = rospy.Subscriber("/move_base_simple/goal", PoseStamped,
+        self.path_sub = self.create_subscription(PoseStamped, "/move_base_simple/goal",
                                          self.clicked_pose_callback)
-        self.path_pub = rospy.Publisher("/desired_path", Path, queue_size=1)
-        self.path_rm_last_sub = rospy.Subscriber("/move_base/cancel", GoalID,
+        self.path_pub = self.create_publisher(Path, "/desired_path", queue_size=1)
+        self.path_rm_last_sub = self.create_subscription(GoalID, "/move_base/cancel",
                                                  self.del_last_pose_callback)
 
     def clicked_pose_callback(self, msg):

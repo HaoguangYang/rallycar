@@ -41,10 +41,10 @@
 # /steering_cmd and /accelerator_cmd. Follow instruction prompt on the screen.
 
 import sys
-import threading
 import select
+import threading
 
-import geometry_msgs.msg
+from std_msgs.msg import Float32
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
@@ -57,8 +57,8 @@ else:
 
 
 class KeyboardTwistTeleop(Node):
-    def __init__(self, node_name: 'str' = 'teleop_twist_keyboard'):
-        super().__init__(node_name)
+    def __init__(self, name = "rally_teleop_keyboard_node"):
+        super().__init__(name)
         self.settings = termios.tcgetattr(sys.stdin)
         self.msg = """
         This node takes keypresses from the keyboard and publishes them to
@@ -99,20 +99,22 @@ class KeyboardTwistTeleop(Node):
             'c': (1, .9),
         }
 
-        self.declare_paramter("accelerator_pedal_cmd_topic", "accelerator_cmd")
+        self.declare_parameter("accelerator_pedal_cmd_topic", "accelerator_cmd")
         gasCmdTopic = self.get_parameter("accelerator_pedal_cmd_topic").value
-        self.declare_paramter("steering_cmd_topic", "steering_cmd")
+        self.declare_parameter("steering_cmd_topic", "steering_cmd")
         steerCmdTopic = self.get_parameter("steering_cmd_topic").value
-        self.accPub = self.create_publisher(Float32, gasCmdTopic, rclpy.sensor_data_qos())
-        self.steerPub = self.create_publisher(Float32, steerCmdTopic, rclpy.sensor_data_qos())
+        self.accPub = self.create_publisher(Float32, gasCmdTopic,
+                                            rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value)
+        self.steerPub = self.create_publisher(Float32, steerCmdTopic,
+                                              rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value)
         # initial values
-        self.declare_paramter("init_gas_cmd_mag", 0.5)
-        self.speed = self.get_parameter("init_gas_cmd_mag").value
-        self.declare_paramter("init_steer_cmd_mag", 1.0)
+        self.declare_parameter("init_pedal_cmd_mag", 0.5)
+        self.speed = self.get_parameter("init_pedal_cmd_mag").value
+        self.declare_parameter("init_steer_cmd_mag", 1.0)
         self.turn = self.get_parameter("init_steer_cmd_mag").value
         # termios timeout defines max spinning rate
-        self.declare_paramter("max_frequency", 10.0)
-        self.keyboard_timeout = 1./self.get_parameter("max_frequency").value
+        self.declare_parameter("update_frequency", 10.0)
+        self.keyboard_timeout = 1./self.get_parameter("update_frequency").value
         self.gasCmd = Float32()
         self.steerCmd = Float32()
 
@@ -121,6 +123,7 @@ class KeyboardTwistTeleop(Node):
             # getwch() returns a string on Windows
             key = msvcrt.getwch()
         else:
+            tty.setraw(sys.stdin.fileno())
             # select.select listens on the keyboard input with timeout of 0.1s.
             res, _, _ = select.select([sys.stdin], [], [], self.keyboard_timeout)
             # sys.stdin.read() returns a string on Linux
@@ -129,7 +132,7 @@ class KeyboardTwistTeleop(Node):
         return key
 
 
-    def vels(speed, turn):
+    def vels(self, speed, turn):
         return 'currently:\tspeed %s\tturn %s ' % (speed, turn)
 
 
@@ -141,7 +144,7 @@ class KeyboardTwistTeleop(Node):
             if rclpy.ok():
                 print(self.msg)
                 print(self.vels(self.speed, self.turn))
-            while rospy.ok():
+            while rclpy.ok():
                 key = self.getKey()  # blocks here
                 if key in self.moveBindings.keys():
                     x = self.moveBindings[key][0]
@@ -162,8 +165,8 @@ class KeyboardTwistTeleop(Node):
                         break
                 self.gasCmd.data = x * self.speed
                 self.steerCmd.data = th * self.turn
-                self.accPub.publish(gasCmd)
-                self.steerPub.publish(steerCmd)
+                self.accPub.publish(self.gasCmd)
+                self.steerPub.publish(self.steerCmd)
         except Exception as e:
             print(e)
 
@@ -171,16 +174,17 @@ class KeyboardTwistTeleop(Node):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
         self.gasCmd.data = 0.
         self.steerCmd.data = 0.
-        self.accPub.publish(gasCmd)
-        self.steerPub.publish(steerCmd)
+        self.accPub.publish(self.gasCmd)
+        self.steerPub.publish(self.steerCmd)
 
 
 if __name__ == "__main__":
     rclpy.init()
-    node = KeyboardTwistTeleop('teleop_twist_keyboard')
+    node = KeyboardTwistTeleop()
     spinner = threading.Thread(target=rclpy.spin, args=(node,))
     spinner.start()
-    spinner.join()
+    node.run()
     node.shutdown()
     node.destroy_node()
     rclpy.shutdown()
+    spinner.join()

@@ -1,0 +1,7 @@
+keyboard_teleop_node:
+  ros__parameters:
+    accelerator_pedal_cmd_topic: "accelerator_cmd"
+    steering_cmd_topic: "steering_cmd"
+    init_pedal_cmd_mag: 200
+    init_steer_cmd_mag: 400
+    update_frequency: 10.0
