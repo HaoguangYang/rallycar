@@ -1,7 +1,7 @@
 #ifndef _NODE_H_
 #define _NODE_H_
 
-#include "./builtin_interfaces/msg/time.h"
+#include "../builtin_interfaces/msg/time.h"
 #include "clock.h"
 #include "endpoint.h"
 #include "field_type.h"
@@ -172,7 +172,7 @@ class CommsInterface {
     }
 
     void send_char(const uint8_t& data) {
-        hw_->write(&data);
+        hw_->write(&data, 1);
     }
 
     void dispatch_frame(const uint8_t* buf, const uint16_t& sz) {

@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "../../message_serializer.h"
+#include "../../transport_layer/message_serializer.h"
 namespace rallycar_msgs__msg {
 class Vector3f {
 public:

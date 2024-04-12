@@ -29,7 +29,7 @@
 
 #include "remove_last_nav_goal_tool.h"
 
-#include <rviz/viewport_mouse_event.h>
+#include <rviz_common/viewport_mouse_event.h>
 
 namespace rallycar_rviz_plugin {
 
@@ -49,14 +49,14 @@ RemoveLastNavGoal::RemoveLastNavGoal() {
 
 RemoveLastNavGoal::~RemoveLastNavGoal() {}
 
-int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz::RenderPanel* panel)
+int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz_common::RenderPanel* panel)
 {
   if (event->type() == QKeyEvent::KeyPress)
   {
     int key = event->key();
     if (key == Qt::Key_Backspace || key == Qt::Key_Delete)
     {
-      cancel_pt_pub_.publish(actionlib_msgs::GoalID());
+      cancel_pt_pub_->publish(actionlib_msgs::msg::GoalID());
     }
   }
   return 0;
@@ -64,7 +64,11 @@ int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz::RenderPanel* pane
 
 void RemoveLastNavGoal::updateTopic()
 {
-  cancel_pt_pub_ = nh_.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 1);
+  rclcpp::Node::SharedPtr raw_node =
+    context_->getRosNodeAbstraction().lock()->get_raw_node();
+  cancel_pt_pub_ = raw_node->
+    template create_publisher<actionlib_msgs::msg::GoalID>(
+    "/move_base/cancel", 1);
 }
 
 // End of .cpp file
@@ -77,5 +81,5 @@ void RemoveLastNavGoal::updateTopic()
 }  // namespace rallycar_rviz_plugin
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(rallycar_rviz_plugin::RemoveLastNavGoal, rviz::Tool)
+PLUGINLIB_EXPORT_CLASS(rallycar_rviz_plugin::RemoveLastNavGoal, rviz_common::Tool)
 // END_TUTORIAL

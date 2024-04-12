@@ -152,7 +152,7 @@ def rosmsg_interface_generation_content(h_file, input_file_path):
     h_file.write(f'\
 #include <stdio.h>\n\
 #include <stdint.h>\n\
-#include "../../message_serializer.h"\n')
+#include "../../transport_layer/message_serializer.h"\n')
 
     # Open input file and read lines
     with open(input_file_path, 'r') as msg_file:

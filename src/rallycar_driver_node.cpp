@@ -24,9 +24,17 @@ public:
         ser_accel_brake_pub(this),
         ser_steer_pub(this)
     {
-        this->setPort("/dev/ttyACM0");
-        this->setBaudrate(115200);
+        // set node config at startup from parameters
+        std::string port = this->declare_parameter<std::string>("serial_port_fd", "/dev/ttyACM0");
+        this->setPort(port);
+        int baud = this->declare_parameter<std::string>("serial_port_baudrate", 115200);
+        this->setBaudrate((unsigned long)baud);
+        std::string imu_frame = this->declare_parameter<std::string>("imu_frame_id", "imu_frame");
+        imu.header.frame_id = imu_frame;
+
+        // initialize serial port and publishers & subscribers
         this->transferInit();
+        // ros side
         ros_imu_pub = this->create_publisher<Imu>("/imu", rclcpp::SensorDataQoS());
         ros_acc_sub = this->create_subscription<Float32>(
             "/accelerator_cmd", rclcpp::SensorDataQoS(),
@@ -34,14 +42,19 @@ public:
         ros_steer_sub = this->create_subscription<Float32>(
             "/steering_cmd", rclcpp::SensorDataQoS(),
             std::bind(&RallycarDriverNode::pub_ser_steer, this, std::placeholders::_1));
+        // serial port side
         registerEndpoint(&ser_imu_sub, 0);
         registerEndpoint(&ser_accel_brake_pub, 1);
         registerEndpoint(&ser_steer_pub, 2);
+
+        // create and link periodic timer callback
         serial_rx_timer = this->create_wall_timer(std::chrono::milliseconds(5),
             std::bind(&RallycarDriverNode::spin, this));
     }
 
     void pub_ros_imu(const SerialImuRaw& msg) {
+        // upon reception of latest IMU data from serial port, deserialize it
+        // and bridge it to the ROS side
         imu.header.stamp.sec = msg.stamp.sec;
         imu.header.stamp.nanosec = msg.stamp.nanosec;
 
@@ -62,11 +75,15 @@ public:
     }
 
     void pub_ser_acc(const Float32& msg) {
+        // upon reception of ROS side data, serialize it and bridge it
+        // to the serial port side.
         ser_accel_cmd.data = msg.data;
         ser_accel_brake_pub.publish(ser_accel_cmd);
     }
 
     void pub_ser_steer(const Float32& msg) {
+        // upon reception of ROS side data, serialize it and bridge it
+        // to the serial port side.
         ser_steer_cmd.data = msg.data;
         ser_steer_pub.publish(ser_steer_cmd);
     }
@@ -83,6 +100,7 @@ protected:
     rclcpp::Subscription<Float32>::SharedPtr ros_acc_sub, ros_steer_sub;
 
     virtual SerialTime time_now() override final {
+        // time getter for time synchoronization with serial devices
         SerialTime ret;
         double t = now().seconds();
         ret.sec = (int32_t)t;

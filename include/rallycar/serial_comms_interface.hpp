@@ -3,8 +3,8 @@
 
 // reused data structures from bare-metal application
 #include "../../firmware/rallycar_arduino_v2024.3/builtin_interfaces/msg/time.h"
-#include "../../firmware/rallycar_arduino_v2024.3/hdlc.h"
-#include "../../firmware/rallycar_arduino_v2024.3/endpoint.h"
+#include "../../firmware/rallycar_arduino_v2024.3/transport_layer/hdlc.h"
+#include "../../firmware/rallycar_arduino_v2024.3/transport_layer/endpoint.h"
 // for serial communication in Linux
 #include "serial.h"
 #include "serial_impl.h"
@@ -56,7 +56,7 @@ protected:
 public:
     const uint8_t session_id;
 
-    SerialCommsInterface(const uint8_t& sessionId = 0, const std::string& port = "/dev/ttyACM0", const uint32_t& baud = 115200) :
+    SerialCommsInterface(const uint8_t& sessionId = 0, const std::string& port = "", const uint32_t& baud = 115200) :
         ser{port, baud, serial::Timeout::simpleTimeout(1000)},
         framer{
             &SerialCommsInterface::send_char,

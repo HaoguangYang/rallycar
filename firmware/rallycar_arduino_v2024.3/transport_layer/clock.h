@@ -2,7 +2,7 @@
 #define _CLOCK_H_
 
 #include <stdint.h>
-#include "builtin_interfaces/msg/time.h"
+#include "../builtin_interfaces/msg/time.h"
 
 namespace time_rounding {
     template<typename T>

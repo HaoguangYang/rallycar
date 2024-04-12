@@ -1,0 +1,61 @@
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+from ament_index_python import get_package_share_directory
+import os
+
+def get_share_file(package_name: str, *args: str) -> str:
+    """Convert package-relative path to absolute path. Any additional args
+    will be appended to the package_name, separated by '/'.
+
+    Args:
+        package_name (str): Package name.
+
+    Returns:
+        os.path: Absolute path.
+    """
+    return os.path.join(get_package_share_directory(package_name), *args)
+
+def generate_launch_description():
+    """
+    This function is by default called when executing ros2 launch ...
+    This function must return a LaunchDescription object created from a list
+    of launch_ros.actions
+    """
+
+    launch_desc_list = [
+        # whether we are running a simulation or on a physical vehicle is controlled
+        # through this launch argument.
+        DeclareLaunchArgument(
+            "use_sim_time", default_value="False",
+                            description="Use simulation clock if True"
+        )
+    ]
+
+    launch_arg_dict = {"use_sim_time": LaunchConfiguration("use_sim_time")}
+
+    urdf = get_share_file("rallycar", "urdf", "rallycar.urdf")
+    robot_desc = None
+    with open(urdf, "r") as f:
+        robot_desc = f.read()
+
+    robot_state_publisher = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        name="robot_state_publisher",
+        output="screen",
+        parameters=[
+            {
+                "publish_frequency": 1.0,
+                "ignore_timestamp": False,
+                "use_tf_static": True,
+                "robot_description": robot_desc,
+            },
+            launch_arg_dict
+        ],
+    )
+
+    launch_desc_list.append(robot_state_publisher)
+
+    return LaunchDescription(launch_desc_list)

@@ -26,12 +26,14 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef PLANT_FLAG_TOOL_H
-#define PLANT_FLAG_TOOL_H
+#ifndef REMOVE_LAST_NAV_GOAL_TOOL_HPP_
+#define REMOVE_LAST_NAV_GOAL_TOOL_HPP_
 
-#include <rviz/tool.h>
-#include <ros/ros.h>
-#include <actionlib_msgs/GoalID.h>
+#include <QObject>
+
+#include <rviz_common/tool.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <actionlib_msgs/msg/goal_id.hpp>
 
 namespace Ogre
 {
@@ -53,14 +55,14 @@ namespace rallycar_rviz_plugin
 // Here we declare our new subclass of rviz::Tool.  Every tool
 // which can be added to the tool bar is a subclass of
 // rviz::Tool.
-class RemoveLastNavGoal: public rviz::Tool
+class RemoveLastNavGoal: public rviz_common::Tool
 {
 Q_OBJECT
 public:
   RemoveLastNavGoal();
   virtual ~RemoveLastNavGoal();
 
-  virtual int processKeyEvent(QKeyEvent* event, rviz::RenderPanel* panel);
+  virtual int processKeyEvent(QKeyEvent* event, rviz_common::RenderPanel* panel);
 
   virtual void activate(){};
 
@@ -70,11 +72,10 @@ public Q_SLOTS:
   void updateTopic();
 
 private:
-  ros::NodeHandle nh_;
-  ros::Publisher cancel_pt_pub_;
+  rclcpp::Publisher<actionlib_msgs::msg::GoalID> cancel_pt_pub_;
 };
 // END_TUTORIAL
 
-} // end namespace rviz_plugin_tutorials
+} // end namespace rallycar_rviz_plugin
 
-#endif // PLANT_FLAG_TOOL_H
+#endif // REMOVE_LAST_NAV_GOAL_TOOL_HPP_
