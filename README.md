@@ -153,7 +153,7 @@ An illustration of the DC-DC boost converter board, and the button/LED to distin
 ## Troubleshooting
 
 1. My car will not move despite I publish the command on the onboard computer.
-    - make sure your ESC and the remote have sufficient battery power. A slow-blinking red LED on the ESC indicates a low voltage on the motor battery.
+    - make sure your ESC and the remote are turned on have sufficient battery power (have solid green LED lit). A slow-blinking red LED on the ESC indicates a low voltage on the motor battery.
     - Verify that your remote (deadman switch) has sufficient batteries, and is paired to the radio receiver. Gently depress the deadman switch trigger.
     - Verify that you are publishing a proper value to `/accelerator_cmd` topic with message type `std_msgs/Float32` at at least 1Hz frequency, and verify `rallycar_driver` is one of the subscribers.
     - *Post-crash, Instructor permission* Check cable harness -- the deadman switch is the signal pin (pin 1) of slot 3 on the radio receiver. The other end of the cable is attached to pin 2 of the Arduino.
@@ -217,5 +217,11 @@ An illustration of the DC-DC boost converter board, and the button/LED to distin
         rosrun urg_node set_urg_ip.py 192.168.0.10 192.168.0.1 --nm 255.255.255.0 --ip $LIDAR_IP_YOU_HAVE_FOUND
         ```
       Power-cycle the entire upper deck to make changes take effect.
+
+8. Python runtime throwing errors of import errors despite the package to be imported exists under Python3.
+    - ROS noetic uses Python3 by default, however on Ubuntu 20.04, the default `python` is still pointed to `python2`. To mitigate this safely, the user should install a package `python-is-python3`:
+        ```sh
+        sudo apt-get install python-is-python3
+        ```
 
 If none of the above resolves your issue, please consult the instructors.
