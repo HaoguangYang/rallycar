@@ -27,7 +27,7 @@ public:
         // set node config at startup from parameters
         std::string port = this->declare_parameter<std::string>("serial_port_fd", "/dev/ttyACM0");
         this->setPort(port);
-        int baud = this->declare_parameter<std::string>("serial_port_baudrate", 115200);
+        int baud = this->declare_parameter<int>("serial_port_baudrate", 115200);
         this->setBaudrate((unsigned long)baud);
         std::string imu_frame = this->declare_parameter<std::string>("imu_frame_id", "imu_frame");
         imu.header.frame_id = imu_frame;
@@ -42,7 +42,8 @@ public:
         ros_steer_sub = this->create_subscription<Float32>(
             "/steering_cmd", rclcpp::SensorDataQoS(),
             std::bind(&RallycarDriverNode::pub_ser_steer, this, std::placeholders::_1));
-        // serial port side
+
+        // serial port side, make sure the IDs are set the same as defined in the firmware code
         registerEndpoint(&ser_imu_sub, 0);
         registerEndpoint(&ser_accel_brake_pub, 1);
         registerEndpoint(&ser_steer_pub, 2);

@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
+
+# this sets the ${PROJECT_NAME} variable within this script
 project(rallycar)
 
+# enable terminal output of all compile-time warnings
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -17,21 +20,35 @@ endif()
 
 # find dependencies
 find_package(ament_cmake_auto REQUIRED)
-
+find_package(ament_cmake_python REQUIRED)
+# automatically add additional dependencies declared in package.xml
 ament_auto_find_build_dependencies()
 
+# this creates a shared library from the C++ sources
 ament_auto_add_library(rallycar_driver_lib SHARED
   src/serial_impl.cc
   src/serial.cc
   src/rallycar_driver_node.cpp
 )
 
+# this plugs the library into the ROS2 component system and turns it into
+# a standard ROS2 node "rallycar_driver_node" executable.
 rclcpp_components_register_node(rallycar_driver_lib
   PLUGIN "rallycar::RallycarDriverNode"
   EXECUTABLE rallycar_driver_node
 )
 
-# tests
+# Create a Python library from "rallycar/" that others can import with:
+# from rallycar import ...​
+ament_python_install_package(${PROJECT_NAME})
+
+# install python scripts as python executables​, that others can run with:
+# ros2 run rallycar ...
+install(PROGRAMS scripts/rally_teleop_keyboard.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# tests, students may ignore this "if" section
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
@@ -63,7 +80,6 @@ if(BUILD_TESTING)
     find_package(ament_cmake_uncrustify)
     ament_uncrustify(${FILES_MINUS_SOME})
   endif()
-
 endif()
 
 # export information to downstream packages
