@@ -23,11 +23,11 @@ def generate_launch_description():
     """
     hokuyo_node = Node(
         package='urg_node',
-        name='laser_driver',
-        executable='urg_node',
+        name='hokuyo_lidar_driver_node',
+        executable='urg_node_driver',
         output='screen',
         parameters=[
-            get_share_file('rallycar', 'param', 'laser.param.yaml'),
+            get_share_file('rallycar', 'param', 'lidar.param.yaml'),
         ],
     )
     return LaunchDescription([

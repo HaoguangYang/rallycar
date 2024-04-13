@@ -40,7 +40,7 @@ def generate_launch_description():
 
     # find the serial port in the normal way
     serial_port = '/dev/ttyACM0'
-    if not os.path_exists(serial_port):
+    if not os.path.exists(serial_port):
         serial_port = '/dev/ttyUSB0'
 
     # we can create nodes and put into the launch description as well

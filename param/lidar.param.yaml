@@ -1,4 +1,4 @@
-urg_node:
+hokuyo_lidar_driver_node:
   ros__parameters:
     ip_address: "192.168.0.10"
     ip_port: 10940
