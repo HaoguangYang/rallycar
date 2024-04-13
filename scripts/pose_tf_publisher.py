@@ -21,6 +21,7 @@ def quaternion_from_euler(roll, pitch, yaw):
     # return q in [x, y, z, w] order
     return [cj*sc - sj*cs, cj*ss + sj*cc, cj*cs - sj*sc, cj*cc + sj*ss]
 
+
 class PoseTfPublisher(Node):
     """
     Converts an updating PoseStamped message into a tf pointing to a specified
@@ -44,18 +45,18 @@ class PoseTfPublisher(Node):
     timestamp and re-published at that guard frequency.
     """
     def __init__(self):
-        super().__init__('odom_tf_publisher_node')
+        super().__init__('pose_tf_publisher_node')
 
         # Declare and acquire `odom_frame_name` parameter
         self.declare_parameter('init_source_frame_name', 'odom')
-        self.declare_parameter('baselink_frame_name', 'base_link')
-        self.declare_parameter('initial_tf_pose', [0., 0., 0., 0., 0., 0.])
+        self.declare_parameter('target_frame_name', 'base_link')
+        self.declare_parameter('init_tf_pose', [0., 0., 0., 0., 0., 0.])
 
         # build the initial value
         self.tf = TransformStamped()
         self.tf.header.frame_id = self.get_parameter('init_source_frame_name').value
-        self.tf.child_frame_id = self.get_parameter('baselink_frame_name').value
-        tf_init = self.get_parameter('initial_tf_pose').value
+        self.tf.child_frame_id = self.get_parameter('target_frame_name').value
+        tf_init = self.get_parameter('init_tf_pose').value
         # unpack the first three values into translation
         self.tf.transform.translation.x, \
             self.tf.transform.translation.y, \
@@ -88,8 +89,8 @@ class PoseTfPublisher(Node):
         # Initialize the transform broadcaster
         self.tf_broadcaster = TransformBroadcaster(self)
         # set a timer callback to guard the minimum update frequency.
-        self.declare_parameter('min_tf_update_frequency', 10.0)
-        tf_freq = self.get_parameter('min_tf_update_frequency').value
+        self.declare_parameter('min_tf_broadcast_frequency', 10.0)
+        tf_freq = self.get_parameter('min_tf_broadcast_frequency').value
         self.send_tf_timer = self.create_timer(1./tf_freq, self.send_tf_callback)
 
 
@@ -123,7 +124,7 @@ class PoseTfPublisher(Node):
         self.tf_broadcaster.sendTransform(self.tf)
 
 
-if __name__ == "__main__":
+def main():
     rclpy.init()
     node = PoseTfPublisher()
     try:
@@ -131,3 +132,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     node.destroy_node()
+
+
+if __name__ == "__main__":
+    main()
