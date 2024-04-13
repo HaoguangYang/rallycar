@@ -48,7 +48,7 @@ install(PROGRAMS scripts/rally_teleop_keyboard.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
-# tests, students may ignore this "if" section
+# tests, beginners may ignore this "if" section
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
@@ -85,5 +85,5 @@ endif()
 # export information to downstream packages
 ament_auto_package(
   CONFIG_EXTRAS "${PROJECT_NAME}-extras.cmake"
-  INSTALL_TO_SHARE resources
+  INSTALL_TO_SHARE resources urdf launch param
 )
