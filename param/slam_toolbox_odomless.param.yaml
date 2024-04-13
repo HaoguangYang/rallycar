@@ -14,7 +14,7 @@ slam_toolbox:
     base_frame: base_link
     # when no "wheel odometer" is provided, we set the odom_frame to be the same
     # as base_frame, to assume no instantaneous motion
-    odom_frame: base_link
+    odom_frame: odom_scanmatch
     scan_topic: /scan
     use_map_saver: true
     mode: mapping #localization
