@@ -66,16 +66,25 @@ public:
     {}
 
     ~SerialCommsInterface() {
-        reset();
-        ser.close();
+        if (ser.isOpen()) {
+            reset();
+            ser.close();
+        }
     }
 
     void setPort (const std::string &port) { ser.setPort(port); }
     void setBaudrate (const uint32_t &baud) { ser.setBaudrate(baud); }
 
-    void transferInit() {
+    bool transferInit() {
         if (ser.isOpen()) ser.close();
-        ser.open();
+        try {
+            ser.open();
+            return true;
+        } catch (const std::exception &e) {
+            printf("ERROR occured when trying to open serial port: %s\n", ser.getPort().c_str());
+            printf("    Backtrace: %s\n", e.what());
+            return false;
+        }
     }
 
     void spin() {

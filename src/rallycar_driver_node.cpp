@@ -5,6 +5,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <std_msgs/msg/float32.hpp>
+#include <unistd.h>
 
 namespace rallycar {
 
@@ -33,7 +34,10 @@ public:
         imu.header.frame_id = imu_frame;
 
         // initialize serial port and publishers & subscribers
-        this->transferInit();
+        while (rclcpp::ok()){
+            if (this->transferInit()) break;
+            sleep(1);
+        }
         // ros side
         ros_imu_pub = this->create_publisher<Imu>("/imu", rclcpp::SensorDataQoS());
         ros_acc_sub = this->create_subscription<Float32>(
