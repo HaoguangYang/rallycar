@@ -47,7 +47,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 
 ## Here we specify the list of source files.
 ## The generated MOC files are included automatically as headers.
-set(SRC_FILES
+set(RVIZ_PLUGIN_SRC_FILES
   src/remove_last_nav_goal_tool.cpp
 )
 
@@ -55,8 +55,8 @@ set(SRC_FILES
 ## library to be called ``${PROJECT_NAME}`` (which is
 ## "rviz_plugin_tutorials", or whatever your version of this project
 ## is called) and specify the list of source files we collected above
-## in ``${SRC_FILES}``.
-add_library(${PROJECT_NAME}_rviz_plugin ${SRC_FILES})
+## in ``${RVIZ_PLUGIN_SRC_FILES}``.
+add_library(${PROJECT_NAME}_rviz_plugin ${RVIZ_PLUGIN_SRC_FILES})
 
 ## Link the myviz executable with whatever Qt libraries have been defined by
 ## the ``find_package(Qt4 ...)`` line above, or by the
@@ -71,6 +71,14 @@ add_library(${PROJECT_NAME}_rviz_plugin ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME}_rviz_plugin ${QT_LIBRARIES} ${catkin_LIBRARIES})
 ## END_TUTORIAL
 
+include_directories(include ${catkin_INCLUDE_DIRS})
+add_executable(rallycar_driver_node
+  src/serial_impl.cc
+  src/serial.cc
+  src/rallycar_driver_node_ros1.cpp
+)
+target_link_libraries(rallycar_driver_node ${catkin_LIBRARIES})
+
 ## Install rules
 
 install(TARGETS
@@ -84,8 +92,7 @@ install(FILES
   plugin_description.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-install(DIRECTORY media/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/media)
-
-install(DIRECTORY icons/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/icons)
+#install(DIRECTORY media/
+#  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/media)
+#install(DIRECTORY icons/
+#  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/icons)

@@ -850,4 +850,6 @@ class MPU6050_Base {
 typedef MPU6050_Base MPU6050;
 #endif
 
+#include "MPU6050.cpp"
+
 #endif /* _MPU6050_H_ */

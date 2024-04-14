@@ -150,4 +150,6 @@ class MPU6050_6Axis_MotionApps612 : public MPU6050_Base {
 
 typedef MPU6050_6Axis_MotionApps612 MPU6050;
 
+#include "MPU6050_6Axis_MotionApps612.cpp"
+
 #endif /* _MPU6050_6AXIS_MOTIONAPPS612_H_ */

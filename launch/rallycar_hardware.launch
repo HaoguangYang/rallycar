@@ -4,9 +4,8 @@
 
     <include file="$(find rallycar)/launch/include/static_tf.launch"/>
     <include file="$(find rallycar)/launch/include/lidar.launch"/>
-    <node pkg="rosserial_python" name="rallycar_driver" type="serial_node.py" output="screen">
-        <param name="port" value="$(arg serial_port)"/>
-        <param name="baud" value="115200"/>
+    <node pkg="rallycar" name="rallycar_driver" type="rallycar_driver_node" output="screen">
+        <param name="serial_port_fd" value="$(arg serial_port)"/>
+        <param name="serial_port_baudrate" value="115200"/>
     </node>
-    <node pkg="rallycar" name="imu_parser" type="imu_parser.py" output="screen"/>
 </launch>
