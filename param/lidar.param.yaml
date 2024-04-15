@@ -3,7 +3,7 @@ hokuyo_lidar_driver_node:
     ip_address: "192.168.0.10"
     ip_port: 10940
     laser_frame_id: "laser"
-    calibrate_time: true
+    calibrate_time: false
     default_user_latency: 0.0
     diagnostics_tolerance: 0.05
     diagnostics_window_time: 5.0

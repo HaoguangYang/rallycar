@@ -3,8 +3,6 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
 def get_share_file(package_name: str, *args: str) -> str:
@@ -50,13 +48,13 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {
-                'init_source_frame_name': 'base_link',
-                'target_frame_name': 'odom_scanmatch',
+                'init_source_frame_name': 'odom_scanmatch',
+                'target_frame_name': 'base_link',
                 'init_tf_pose': [0., 0., 0., 0., 0., 0.],
                 # stuck at an identity transform without further updating
                 'updater_topic': '',
-                # broadcast tf at 10Hz
-                'min_tf_broadcast_frequency': 10.0,
+                # broadcast tf at 40Hz
+                'min_tf_broadcast_frequency': 40.0,
             },
         ],
     )
