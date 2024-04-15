@@ -33,11 +33,6 @@ public:
         std::string imu_frame = this->declare_parameter<std::string>("imu_frame_id", "imu_frame");
         imu.header.frame_id = imu_frame;
 
-        // initialize serial port and publishers & subscribers
-        while (rclcpp::ok()){
-            if (this->transferInit()) break;
-            sleep(1);
-        }
         // ros side
         ros_imu_pub = this->create_publisher<Imu>("/imu", rclcpp::SensorDataQoS());
         ros_acc_sub = this->create_subscription<Float32>(
@@ -52,9 +47,31 @@ public:
         registerEndpoint(&ser_accel_brake_pub, 1);
         registerEndpoint(&ser_steer_pub, 2);
 
-        // create and link periodic timer callback
-        serial_rx_timer = this->create_wall_timer(std::chrono::milliseconds(5),
-            std::bind(&RallycarDriverNode::spin, this));
+        // initialize serial port and publishers & subscribers.
+        // after the loop exits (succeeded), the node starts listening
+        while (rclcpp::ok()){
+            if (this->transferInit()) break;
+            sleep(1);
+        }
+    }
+
+protected:
+    Imu imu;
+    SerialFloat32 ser_accel_cmd, ser_steer_cmd;
+
+    sensor_network::Subscription<SerialImuRaw, RallycarDriverNode> ser_imu_sub;
+    sensor_network::Publisher<SerialFloat32, RallycarDriverNode> ser_accel_brake_pub, ser_steer_pub;
+
+    rclcpp::Publisher<Imu>::SharedPtr ros_imu_pub;
+    rclcpp::Subscription<Float32>::SharedPtr ros_acc_sub, ros_steer_sub;
+
+    virtual SerialTime time_now() override final {
+        // time getter for time synchoronization with serial devices
+        SerialTime ret;
+        double t = now().seconds();
+        ret.sec = (int32_t)t;
+        ret.nanosec = (uint32_t)((t - (double)ret.sec) * 1000000000U);
+        return ret;
     }
 
     void pub_ros_imu(const SerialImuRaw& msg) {
@@ -91,26 +108,6 @@ public:
         // to the serial port side.
         ser_steer_cmd.data = msg.data;
         ser_steer_pub.publish(ser_steer_cmd);
-    }
-
-protected:
-    Imu imu;
-    SerialFloat32 ser_accel_cmd, ser_steer_cmd;
-
-    sensor_network::Subscription<SerialImuRaw, RallycarDriverNode> ser_imu_sub;
-    sensor_network::Publisher<SerialFloat32, RallycarDriverNode> ser_accel_brake_pub, ser_steer_pub;
-
-    rclcpp::TimerBase::SharedPtr serial_rx_timer;
-    rclcpp::Publisher<Imu>::SharedPtr ros_imu_pub;
-    rclcpp::Subscription<Float32>::SharedPtr ros_acc_sub, ros_steer_sub;
-
-    virtual SerialTime time_now() override final {
-        // time getter for time synchoronization with serial devices
-        SerialTime ret;
-        double t = now().seconds();
-        ret.sec = (int32_t)t;
-        ret.nanosec = (uint32_t)((t - (double)ret.sec) * 1000000000U);
-        return ret;
     }
 };
 

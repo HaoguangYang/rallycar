@@ -4,9 +4,9 @@
 #include "node.h"
 
 #if defined(ESP8266) or defined(ESP32) or defined(ROSSERIAL_ARDUINO_TCP)
-  #include "ArduinoTcpHardware.h"
+  #include "../hardware_abstraction_layer/ArduinoTcpHardware.h"
 #else
-  #include "ArduinoHardware.h"
+  #include "../hardware_abstraction_layer/ArduinoHardware.h"
 #endif
 
 namespace sensor_network {

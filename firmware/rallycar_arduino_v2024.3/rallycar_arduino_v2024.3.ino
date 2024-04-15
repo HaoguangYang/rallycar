@@ -16,7 +16,6 @@ void setup(){
     digitalWrite(LED_PIN, LOW);
     hw.setBaud(115200);
     hw.init();
-    //framer = new Hdlc(&send_character, &frame_dispatcher, RX_MTU, &(ser_buf[0]));
     comms.register_node(&node_inst);
     node_inst.imu_init();
     node_inst.drive_by_wire_init();
