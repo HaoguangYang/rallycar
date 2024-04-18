@@ -39,6 +39,7 @@ def generate_launch_description():
             'use_sim_time': False
           }
         ],
+        arguments=['--ros-args', '--log-level', 'slam_node:=warn'],
     )
 
     odom_spoofer = Node(
@@ -48,7 +49,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {
-                'init_source_frame_name': 'odom_scanmatch',
+                'init_source_frame_name': 'scanmatcher_frame',
                 'target_frame_name': 'base_link',
                 'init_tf_pose': [0., 0., 0., 0., 0., 0.],
                 # stuck at an identity transform without further updating
