@@ -2,7 +2,8 @@
 import rclpy
 from rclpy.node import Node
 from tf2_ros import TransformBroadcaster
-from geometry_msgs.msg import TransformStamped, PoseStamped
+from geometry_msgs.msg import TransformStamped
+from nav_msgs.msg import Odometry
 
 import numpy as np
 
@@ -22,17 +23,17 @@ def quaternion_from_euler(roll, pitch, yaw):
     return [cj*sc - sj*cs, cj*ss + sj*cc, cj*cs - sj*sc, cj*cc + sj*ss]
 
 
-class PoseTfPublisher(Node):
+class OdomTfPublisher(Node):
     """
-    Converts an updating PoseStamped message into a tf pointing to a specified
+    Converts an updating Odometry message into a tf pointing to a specified
     baselink frame. A typical use case of this node is a helper to bridge a
     missing tf from odom to base_link. To achieve this functionality, the user
     should set the "updater_topic" parameter to the topic with a publisher of
-    PoseStamped message. On the publisher side, the user should set the
-    header.frame_id field of the PoseStamped message as "odom", and the pose
+    Odometry message. On the publisher side, the user should set the
+    header.frame_id field of the Odometry message as "odom", and the pose
     field of the message being the integrated robot pose since it started moving.
 
-    This node Subscribes to a specified topic with message type PoseStamped, and
+    This node Subscribes to a specified topic with message type Odometry, and
     extracts the header, pose.position, and pose.orientation fields. This node
     then packs these fields into a TransformStamped message type and publishes
     to /tf.
@@ -45,7 +46,7 @@ class PoseTfPublisher(Node):
     timestamp and re-published at that guard frequency.
     """
     def __init__(self):
-        super().__init__('pose_tf_publisher_node')
+        super().__init__('odom_tf_publisher_node')
 
         # Declare and acquire `odom_frame_name` parameter
         self.declare_parameter('init_source_frame_name', 'odom')
@@ -70,7 +71,7 @@ class PoseTfPublisher(Node):
 
         # User may specify a topic where this node receives updates.
         # if this parameter is non-empty, a subscriber of type
-        # 'geometry_msgs/PoseStamped' is created at that topic.
+        # 'nav_msgs/Odometry' is created at that topic.
         # This node directly picks the header, pose.position, and pose.orientation,
         # fields, and updates the published transform.
         self.declare_parameter('updater_topic', '')
@@ -80,7 +81,7 @@ class PoseTfPublisher(Node):
             # Subscribe to a turtle{1}{2}/pose topic and call handle_turtle_pose
             # callback function on each message
             self.subscription = self.create_subscription(
-                PoseStamped,
+                Odometry,
                 sub_topic,
                 self.handle_tf_update,
                 rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value
@@ -101,22 +102,16 @@ class PoseTfPublisher(Node):
 
     def handle_tf_update(self, msg):
         self.tf.header = msg.header
+        self.tf.child_frame_id = msg.child_frame_id
 
         # translate the field names
+        pos = msg.pose.pose.position
         self.tf.transform.translation.x, \
             self.tf.transform.translation.y, \
-                self.tf.transform.translation.z = (
-                    msg.pose.position.x, \
-                        msg.pose.position.y, \
-                            msg.pose.position.z)
-        self.tf.transform.rotation.x, \
-            self.tf.transform.rotation.y, \
-                self.tf.transform.rotation.z, \
-                    self.tf.transform.rotation.w = (
-                        msg.pose.orientation.x, \
-                            msg.pose.orientation.y, \
-                                msg.pose.orientation.z, \
-                                    msg.pose.orientation.w)
+                self.tf.transform.translation.z = \
+                    (pos.x, pos.y, pos.z)
+        self.tf.transform.rotation = msg.pose.pose.orientation
+
         # we just received an update and have published, therefore we postpone
         # the next time-driven update by resetting the timer.
         self.self.send_tf_timer.reset()
@@ -126,7 +121,7 @@ class PoseTfPublisher(Node):
 
 def main():
     rclpy.init()
-    node = PoseTfPublisher()
+    node = OdomTfPublisher()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

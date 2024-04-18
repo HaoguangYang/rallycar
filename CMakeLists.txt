@@ -47,7 +47,9 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   scripts/rally_teleop_keyboard.py
   scripts/path_server.py
-  scripts/pose_tf_publisher.py
+  scripts/path_recorder.py
+  scripts/odom_tf_publisher.py
+  scripts/scanmatcher_odom_repub.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

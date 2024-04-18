@@ -42,10 +42,12 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', 'slam_node:=warn'],
     )
 
-    odom_spoofer = Node(
+    # CONFIG ONE -- SCANMATCHING UNDER ZERO-MOTION ASSUMPTION
+    # ESTIMATES MOTION SUCCESSFULLY, BUT LAGS BEHIND
+    odom_tf_spoofer = Node(
         package='rallycar',
-        executable='pose_tf_publisher.py',
-        name='odom_spoofer_node',
+        executable='odom_tf_publisher.py',
+        name='identity_odom_node',
         output='screen',
         parameters=[
             {
@@ -60,7 +62,39 @@ def generate_launch_description():
         ],
     )
 
+    # CONFIG TWO -- SCANMATCHING ESTIMATES ON TOP OF EXISTING MOTION
+    # ESTIMATES MOTION WITHOUT A LAG
+    """
+    odom_node = Node(
+        package='rallycar',
+        executable='scanmatcher_odom_repub.py',
+        name='scanmatcher_odom_repub_node',
+        output='screen',
+        parameters=[],
+    )
+
+    odom_tf_node = Node(
+        package='rallycar',
+        executable='odom_tf_publisher.py',
+        name='odom_tf_publisher_node',
+        output='screen',
+        parameters=[
+            {
+                'init_source_frame_name': 'odom',
+                'target_frame_name': 'base_link',
+                'init_tf_pose': [0., 0., 0., 0., 0., 0.],
+                # stuck at an identity transform without further updating
+                'updater_topic': 'odom',
+                # broadcast tf at 40Hz
+                'min_tf_broadcast_frequency': 40.0,
+            },
+        ],
+    )
+    """
+
     return LaunchDescription([
         scanmatching_slam_node,
-        odom_spoofer,
+        odom_tf_spoofer,
+        # odom_node,
+        # odom_tf_node,
     ])
