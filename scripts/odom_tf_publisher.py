@@ -114,7 +114,7 @@ class OdomTfPublisher(Node):
 
         # we just received an update and have published, therefore we postpone
         # the next time-driven update by resetting the timer.
-        self.self.send_tf_timer.reset()
+        self.send_tf_timer.reset()
         # sending the translated tf
         self.tf_broadcaster.sendTransform(self.tf)
 

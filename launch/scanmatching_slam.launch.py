@@ -3,6 +3,8 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
 def get_share_file(package_name: str, *args: str) -> str:
@@ -42,65 +44,14 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', 'slam_node:=warn'],
     )
 
-    # CONFIG ONE -- SCANMATCHING UNDER ZERO-MOTION ASSUMPTION
-    # ESTIMATES MOTION SUCCESSFULLY, BUT LAGS BEHIND
-    odom_tf_spoofer = Node(
-        package='rallycar',
-        executable='odom_tf_publisher.py',
-        name='identity_odom_node',
-        output='screen',
-        parameters=[
-            {
-                'init_source_frame_name': 'scanmatcher_frame',
-                'target_frame_name': 'base_link',
-                'init_tf_pose': [0., 0., 0., 0., 0., 0.],
-                # stuck at an identity transform without further updating
-                'updater_topic': '',
-                # broadcast tf at 40Hz
-                'min_tf_broadcast_frequency': 40.0,
-            },
-        ],
+    # include other launch files
+    scanmatching_odom_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            get_share_file('rallycar', 'launch', 'scanmating_odom_tf_publisher.launch.py')
+        )
     )
-
-    # CONFIG TWO -- SCANMATCHING ESTIMATES ON TOP OF EXISTING MOTION
-    # ESTIMATES MOTION WITHOUT A LAG
-    """
-    odom_node = Node(
-        package='rallycar',
-        executable='scanmatcher_odom_repub.py',
-        name='scanmatcher_odom_repub_node',
-        output='screen',
-        parameters=[
-            {
-                'scanmatcher_pose_topic': '/pose',
-                'odom_topic': '/odom',
-                'odom_header_frame_id_override': 'odom',
-                'odom_child_frame_id': 'base_link',
-            }
-        ],
-    )
-
-    odom_tf_node = Node(
-        package='rallycar',
-        executable='odom_tf_publisher.py',
-        name='odom_tf_publisher_node',
-        output='screen',
-        parameters=[
-            {
-                'init_source_frame_name': 'odom',
-                'target_frame_name': 'base_link',
-                'init_tf_pose': [0., 0., 0., 0., 0., 0.],
-                'updater_topic': '/odom',
-                # broadcast tf at >= 40Hz
-                'min_tf_broadcast_frequency': 40.0,
-            },
-        ],
-    )
-    """
 
     return LaunchDescription([
         scanmatching_slam_node,
-        odom_tf_spoofer,
-        # odom_node,
-        # odom_tf_node,
+        scanmatching_odom_launch,
     ])

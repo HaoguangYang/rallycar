@@ -13,7 +13,8 @@ slam_node:
     base_frame: base_link
     # when no "wheel odometer" is provided, we set the odom_frame to be the same
     # as base_frame, to assume no instantaneous motion
-    odom_frame: scanmatcher_frame
+    # odom_frame: scanmatcher_frame
+    odom_frame: odom
     scan_topic: /scan
     scan_queue_size: 5              # buffer up to 5 scans for tf filter lookup
     use_map_saver: true
