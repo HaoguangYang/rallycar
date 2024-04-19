@@ -70,7 +70,14 @@ def generate_launch_description():
         executable='scanmatcher_odom_repub.py',
         name='scanmatcher_odom_repub_node',
         output='screen',
-        parameters=[],
+        parameters=[
+            {
+                'scanmatcher_pose_topic': '/pose',
+                'odom_topic': '/odom',
+                'odom_header_frame_id_override': 'odom',
+                'odom_child_frame_id': 'base_link',
+            }
+        ],
     )
 
     odom_tf_node = Node(
@@ -83,9 +90,8 @@ def generate_launch_description():
                 'init_source_frame_name': 'odom',
                 'target_frame_name': 'base_link',
                 'init_tf_pose': [0., 0., 0., 0., 0., 0.],
-                # stuck at an identity transform without further updating
-                'updater_topic': 'odom',
-                # broadcast tf at 40Hz
+                'updater_topic': '/odom',
+                # broadcast tf at >= 40Hz
                 'min_tf_broadcast_frequency': 40.0,
             },
         ],

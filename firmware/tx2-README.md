@@ -1,4 +1,7 @@
 ## For NVIDIA Jetson TX2 with original carrier board
+
+Set recovery mode of the TX2 board by holding down the "RST" button and pressing the "PWR" button. Connect a micro-USB cable with a Linux PC. On the PC run `lsusb`, you should see an item with `NVIDIA` in its name.
+
 Flashing command:
 ```sh
 gunzip -c ./your_custom_image.img.gz > ./nvidia/nvidia_sdk/JetPack_4.6.4_Linux_JETSON_TX2_TARGETS/Linux_for_Tegra/bootloader/system.img

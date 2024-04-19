@@ -1,5 +1,7 @@
 ## For NVIDIA Orin Nano DevKit
 
+Enter factory recovery mode on the Orin DevKit: use a jumper to connect `FC REC` pin to `GND`. Connect power to the board, a green LED should turn on indicating that it is up. Connect a USB-C cable to a Linux PC. On the PC use `lsusb` to list USB devices. You should see an entry with `NVIDIA` in its name, indicating that the board is in recovery mode. **Unplug the jumper**.
+
 Command to initiate the raw image creation + flashing, the example below is for flashing onto a mounted NVMe SSD:
 ```sh
 cd JetPack_x.y.../Linux_for_Tegra && sudo ./nvsdkmanager_flash.sh --storage nvme0n1p1

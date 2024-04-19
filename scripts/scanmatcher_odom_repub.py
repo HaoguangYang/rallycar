@@ -7,25 +7,17 @@ from nav_msgs.msg import Odometry
 
 class ScanmatcherOdomRepubNode(Node):
     """
-    Converts an updating Odometry message into a tf pointing to a specified
-    baselink frame. A typical use case of this node is a helper to bridge a
-    missing tf from odom to base_link. To achieve this functionality, the user
-    should set the "updater_topic" parameter to the topic with a publisher of
-    Odometry message. On the publisher side, the user should set the
-    header.frame_id field of the Odometry message as "odom", and the pose
-    field of the message being the integrated robot pose since it started moving.
+    Receives a message of type 'geometry_msgs/PoseWithCovarianceStamped', and
+    copy its values over to publish a message of type 'nav_msgs/Odometry'. Only
+    the pose fields contain valid values.
 
-    This node Subscribes to a specified topic with message type Odometry, and
-    extracts the header, pose.position, and pose.orientation fields. This node
-    then packs these fields into a TransformStamped message type and publishes
-    to /tf.
+    Coordinate frame and timestamp handling: copies the timestamp from the
+    received message. If parameter "odom_header_frame_id_override" is not set,
+    it also copies the header.frame_id from the received message. The
+    child_frame_id of the Odometry is set with parameter "odom_child_frame_id".
 
-    The user also needs to specify the initial values of the transform, if not
-    identity.
-
-    A guard of minium update frequency is set, such that when the update topic
-    is not specified or not updating, old values are packed with a current
-    timestamp and re-published at that guard frequency.
+    This piece of code can be used as a bare-minimal example of sensor fusion or
+    interpolation.
     """
     def __init__(self):
         super().__init__('scanmatcher_odom_repub_node')
