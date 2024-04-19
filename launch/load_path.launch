@@ -1,9 +1,0 @@
-<launch>
-    <!--FIXME: CHANGE THIS LINES TO YOUR ACTUAL SETUP! -->
-    <arg name="path_file" default="$(find rallycar)/resources/paths/crane_500_default_path.yaml" />
-
-    <node name="path_server" pkg="rallycar" type="path_server.py">
-        <param name="file_name" value="$(arg path_file)" />
-        <param name="mode" value="publish" />
-    </node>
-</launch>
