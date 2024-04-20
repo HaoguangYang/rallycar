@@ -47,7 +47,9 @@ def generate_launch_description():
     # include other launch files
     scanmatching_odom_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_share_file('rallycar', 'launch', 'scanmating_odom_tf_publisher.launch.py')
+            get_share_file(
+                'rallycar', 'launch', 'include', 'scanmating_odom_tf_publisher.launch.py'
+            )
         )
     )
 

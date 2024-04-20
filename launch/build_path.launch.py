@@ -8,22 +8,11 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
-def get_share_file(package_name: str, *args: str) -> str:
-    """Convert package-relative path to absolute path. Any additional args
-    will be appended to the package_name, separated by '/'.
-
-    Args:
-        package_name (str): Package name.
-
-    Returns:
-        os.path: Absolute path.
-    """
-    return os.path.join(get_package_share_directory(package_name), *args)
-
-
 # FIXME: change these two declaration of default map/path file name based on your actual setup
-default_map_file = get_share_file('rallycar', 'resources', 'maps', 'crane_500_map.yaml')
-default_path_file = get_share_file('rallycar', 'resources', 'paths', 'crane_500_demo_path.yaml')
+default_map_file = os.path.join(get_package_share_directory('rallycar'),
+                                'resources', 'maps', 'crane_500_map.yaml')
+default_path_file = os.path.join(get_package_share_directory('rallycar'),
+                                 'resources', 'paths', 'crane_500_demo_path.yaml')
 
 
 def generate_launch_description():

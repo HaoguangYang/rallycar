@@ -5,17 +5,6 @@ from launch.substitutions import LaunchConfiguration
 from ament_index_python import get_package_share_directory
 import os
 
-def get_share_file(package_name: str, *args: str) -> str:
-    """Convert package-relative path to absolute path. Any additional args
-    will be appended to the package_name, separated by '/'.
-
-    Args:
-        package_name (str): Package name.
-
-    Returns:
-        os.path: Absolute path.
-    """
-    return os.path.join(get_package_share_directory(package_name), *args)
 
 def generate_launch_description():
     """
@@ -35,7 +24,7 @@ def generate_launch_description():
 
     launch_arg_dict = {"use_sim_time": LaunchConfiguration("use_sim_time")}
 
-    urdf = get_share_file("rallycar", "urdf", "rallycar.urdf")
+    urdf = os.path.join(get_package_share_directory("rallycar"), "urdf", "rallycar.urdf")
     robot_desc = None
     with open(urdf, "r") as f:
         robot_desc = f.read()

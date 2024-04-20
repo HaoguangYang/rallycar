@@ -6,18 +6,6 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, LogInfo
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-def get_share_file(package_name: str, *args: str) -> str:
-    """Convert package-relative path to absolute path. Any additional args
-    will be appended to the package_name, separated by '/'.
-
-    Args:
-        package_name (str): Package name.
-
-    Returns:
-        os.path: Absolute path.
-    """
-    return os.path.join(get_package_share_directory(package_name), *args)
-
 
 def generate_launch_description():
     """
@@ -27,14 +15,16 @@ def generate_launch_description():
     """
     hardware_driver_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_share_file('rallycar', 'launch', 'rallycar_hardware.launch.py')
+            os.path.join(get_package_share_directory('rallycar'),
+                         'launch', 'rallycar_hardware.launch.py')
         )
     )
 
     # we can create nodes and put into the launch description as well
     scanmatching_slam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_share_file('rallycar', 'launch', 'scanmatching_slam.launch.py')
+            os.path.join(get_package_share_directory('rallycar'),
+                         'launch', 'scanmatching_slam.launch.py')
         )
     )
 

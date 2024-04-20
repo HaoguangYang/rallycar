@@ -7,8 +7,11 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
+'''
+# You can define your own function as in a normal Python script, but these functions
+# are run PRIOR to starting any ROS 2 nodes.
 def get_share_file(package_name: str, *args: str) -> str:
-    """Convert package-relative path to absolute path. Any additional args
+    Convert package-relative path to absolute path. Any additional args
     will be appended to the package_name, separated by '/'.
 
     Args:
@@ -18,23 +21,27 @@ def get_share_file(package_name: str, *args: str) -> str:
         os.path: Absolute path.
     """
     return os.path.join(get_package_share_directory(package_name), *args)
+'''
 
 def generate_launch_description():
     """
     This function is by default called when executing ros2 launch ...
     This function must return a LaunchDescription object created from a list
     of launch_ros.actions
+    The returned object is then used by the ros2 toolchain to start executables
     """
     # include other launch files
     lidar_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_share_file('rallycar', 'launch', 'include', 'lidar.launch.py')
+            os.path.join(get_package_share_directory('rallycar'),
+                         'launch', 'include', 'lidar.launch.py')
         )
     )
 
     static_tf_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_share_file('rallycar', 'launch', 'include', 'static_tf.launch.py')
+            os.path.join(get_package_share_directory('rallycar'),
+                         'launch', 'include', 'static_tf.launch.py')
         )
     )
 
@@ -51,7 +58,8 @@ def generate_launch_description():
         output='screen',
         parameters=[
             # elements within the parameter list can be either a string pointing to a yaml file
-            get_share_file('rallycar', 'param', 'rallycar_driver.param.yaml'),
+            os.path.join(get_package_share_directory('rallycar'),
+                         'param', 'rallycar_driver.param.yaml'),
             # ... or a dictionary of key-value pairs
             {"serial_port_fd": serial_port},
             # in case of conflicting definitions, the one defined later will override.
