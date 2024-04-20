@@ -20,10 +20,12 @@
   <depend>pluginlib</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>robot_state_publisher</depend>
   <depend>urg_node</depend>
-  <depend>slam-toolbox</depend>
-  <depend>nav2-map_server</depend>
+  <depend>slam_toolbox</depend>
+  <depend>nav2_map_server</depend>
+  <depend>nav2_amcl</depend>
 
   <exec_depend>libqt5-core</exec_depend>
   <exec_depend>libqt5-gui</exec_depend>

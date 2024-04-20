@@ -55,36 +55,15 @@ install(PROGRAMS
 
 # tests, beginners may ignore this "if" section
 if(BUILD_TESTING)
-  find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
-
-  #ament_add_gtest(${PROJECT_NAME}_gtest test/rallycar_driver_test.cpp)
-  #target_link_libraries(${PROJECT_NAME}_gtest ${rclcpp_LIBRARIES} ${rmw_connext_cpp_LIBRARIES} ${std_interfaces} ${TARGET_LIB_NAME})
-
   # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
+  # comment the line when a copyright and license is added to all source files
   set(ament_cmake_copyright_FOUND TRUE)
   # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
-
-  # Temporarily disable uncrustify
-  list(APPEND AMENT_LINT_AUTO_EXCLUDE
-    ament_cmake_uncrustify
-  )
-
+  # comment the line when this package is in a git repo and when
+  # a copyright and license is added to all source files
+  set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
-
-  # make ament_uncrustify skip C/C++ files.
-  file(GLOB_RECURSE FILES_MINUS_SOME
-    ${CMAKE_CURRENT_SOURCE_DIR}/*
-  )
-  list(FILTER FILES_MINUS_SOME EXCLUDE REGEX ".*\.(cpp|hpp|cc|hh|c|h)")
-  # Re-enable uncrustify
-  if(FILES_MINUS_SOME)
-    find_package(ament_cmake_uncrustify)
-    ament_uncrustify(${FILES_MINUS_SOME})
-  endif()
 endif()
 
 # export information to downstream packages
