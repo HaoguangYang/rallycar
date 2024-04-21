@@ -25,7 +25,7 @@ class ScanmatcherOdomRepubNode(Node):
         # Declare and acquire `odom_frame_name` parameter
         self.declare_parameter('scanmatcher_pose_topic', 'pose')
         self.declare_parameter('odom_topic', 'scanmatcher_odom')
-        self.declare_parameter('odom_header_frame_id_override', '')
+        self.declare_parameter('odom_header_frame_id', '')
         self.declare_parameter('odom_child_frame_id', 'base_link')
 
         sub_topic = self.get_parameter('scanmatcher_pose_topic').value
@@ -40,16 +40,27 @@ class ScanmatcherOdomRepubNode(Node):
         pub_topic = self.get_parameter('odom_topic').value
         self.odom_pub = self.create_publisher(Odometry, pub_topic,
                             rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value)
+        # initialize the message to be published
         self.odom_msg = Odometry()
-        self.odom_msg.header.frame_id = \
-            self.get_parameter('odom_header_frame_id_override').value
+        # whether to override "header.frame_id" fild to another frame,
+        # or to take the value from subscribed messages
+        self.odom_header_frame_id_override = self.get_parameter('odom_header_frame_id').value
+        if self.odom_header_frame_id_override:
+            self.odom_msg.header.frame_id = self.odom_header_frame_id_override
+        # child_frame_id is always taken from parameter (defaults to base_link),
+        # since the subscribed message lacks that information
         self.odom_msg.child_frame_id = self.get_parameter('odom_child_frame_id').value
 
 
     def handle_pose_update(self, msg):
+        # copy timestamp directly from the subscribed message
         self.odom_msg.header.stamp = msg.header.stamp
-        if not self.odom_msg.header.frame_id:
+        # if we are extrapolating pose with time, use the current timestamp instead
+        # self.odom_msg.header.stamp = self.get_clock().now().to_msg()
+
+        if not self.odom_header_frame_id_override:
             self.odom_msg.header.frame_id = msg.header.frame_id
+
         self.odom_msg.pose = msg.pose
 
         # FIXME: we do not have twist computed here.

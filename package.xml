@@ -11,9 +11,6 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
-  <build_depend>qtbase5-dev</build_depend>
-  <build_depend>rviz2</build_depend>
-
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
   <depend>rclcpp_components</depend>
@@ -21,11 +18,17 @@
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>nav_msgs</depend>
-  <depend>robot_state_publisher</depend>
-  <depend>urg_node</depend>
-  <depend>slam_toolbox</depend>
-  <depend>nav2_map_server</depend>
-  <depend>nav2_amcl</depend>
+  <depend>rviz_common</depend>
+  <depend>actionlib_msgs</depend>
+
+  <build_depend>qtbase5-dev</build_depend>
+
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>urg_node</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>nav2_map_server</exec_depend>
+  <exec_depend>nav2_amcl</exec_depend>
+  <exec_depend>rviz2</exec_depend>
 
   <exec_depend>libqt5-core</exec_depend>
   <exec_depend>libqt5-gui</exec_depend>

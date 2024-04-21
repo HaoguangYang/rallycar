@@ -1,5 +1,14 @@
 slam_node:
   ros__parameters:
+    # ROS Parameters
+    map_frame: map
+    base_frame: base_link
+    odom_frame: odom
+    mode: mapping                   # or localization
+    transform_publish_period: 0.025 # if 0 never publishes map->odom
+
+    # normally, you don't need to alter the params below
+
     # Plugin params
     solver_plugin: solver_plugins::CeresSolver
     ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
@@ -8,28 +17,13 @@ slam_node:
     ceres_dogleg_type: TRADITIONAL_DOGLEG
     ceres_loss_function: HuberLoss
 
-    # ROS Parameters
-    map_frame: map
-    base_frame: base_link
-    # when no "wheel odometer" is provided, we set the odom_frame to be the same
-    # as base_frame, to assume no instantaneous motion
-    # odom_frame: scanmatcher_frame
-    odom_frame: odom
+    # laser scan related params
     scan_topic: /scan
     scan_queue_size: 5              # buffer up to 5 scans for tf filter lookup
     use_map_saver: true
-    mode: mapping                   # or localization
-
-    # if you'd like to immediately start continuing a map at a given pose
-    # or at the dock, but they are mutually exclusive, if pose is given
-    # will use pose, e.g.:
-    # map_file_name: test_steve
-    # map_start_pose: [0.0, 0.0, 0.0]
-    # map_start_at_dock: true
 
     debug_logging: false
     throttle_scans: 1
-    transform_publish_period: 0.025 # if 0 never publishes odometry
     map_update_interval: 5.0
     resolution: 0.05
     max_laser_range: 10.0           # for rastering images
@@ -57,7 +51,8 @@ slam_node:
 
     # Correlation Parameters - Correlation Parameters
     correlation_search_space_dimension: 0.5
-    correlation_search_space_resolution: 0.01   # don't change this -- libkarto will be unhappy
+    # set resolution such that dimension/resolution is an even integer, else libkarto will crash
+    correlation_search_space_resolution: 0.01
     correlation_search_space_smear_deviation: 0.1
 
     # Correlation Parameters - Loop Closure Parameters

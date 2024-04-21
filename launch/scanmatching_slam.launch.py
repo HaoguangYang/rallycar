@@ -7,18 +7,6 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
-def get_share_file(package_name: str, *args: str) -> str:
-    """Convert package-relative path to absolute path. Any additional args
-    will be appended to the package_name, separated by '/'.
-
-    Args:
-        package_name (str): Package name.
-
-    Returns:
-        os.path: Absolute path.
-    """
-    return os.path.join(get_package_share_directory(package_name), *args)
-
 
 def generate_launch_description():
     """
@@ -35,7 +23,8 @@ def generate_launch_description():
         output='screen',
         namespace='',
         parameters=[
-          get_share_file('rallycar', 'param', 'slam_toolbox_odomless.param.yaml'),
+          os.path.join(get_package_share_directory('rallycar'),
+                       'param', 'slam_toolbox_scanmatching.param.yaml'),
           {
             'use_lifecycle_manager': False,
             'use_sim_time': False
@@ -47,9 +36,8 @@ def generate_launch_description():
     # include other launch files
     scanmatching_odom_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_share_file(
-                'rallycar', 'launch', 'include', 'scanmating_odom_tf_publisher.launch.py'
-            )
+            os.path.join(get_package_share_directory('rallycar'),
+                         'launch', 'include', 'scanmating_odom_tf_publisher.launch.py')
         )
     )
 

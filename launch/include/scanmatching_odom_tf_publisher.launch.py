@@ -18,7 +18,7 @@ def generate_launch_description():
             {
                 'scanmatcher_pose_topic': '/pose',
                 'odom_topic': '/odom',
-                'odom_header_frame_id_override': 'odom',
+                'odom_header_frame_id': 'odom',
                 'odom_child_frame_id': 'base_link',
             }
         ],

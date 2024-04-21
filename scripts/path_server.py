@@ -38,9 +38,6 @@ class PathServer(Node):
 
     def __init__(self):
         """Class constructor that loads the path from file and publishes it.
-
-        Args:
-            file_name (str): Input path file name
         """
         super().__init__('path_server_node')
         self.declare_parameter('path_file')

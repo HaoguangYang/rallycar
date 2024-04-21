@@ -27,9 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "remove_last_nav_goal_tool.h"
-
-#include <rviz_common/viewport_mouse_event.h>
+#include "rallycar/remove_last_nav_goal_tool.h"
 
 namespace rallycar_rviz_plugin {
 
@@ -51,6 +49,7 @@ RemoveLastNavGoal::~RemoveLastNavGoal() {}
 
 int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz_common::RenderPanel* panel)
 {
+  (void)panel;
   if (event->type() == QKeyEvent::KeyPress)
   {
     int key = event->key();
@@ -80,6 +79,6 @@ void RemoveLastNavGoal::updateTopic()
 
 }  // namespace rallycar_rviz_plugin
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rallycar_rviz_plugin::RemoveLastNavGoal, rviz_common::Tool)
 // END_TUTORIAL

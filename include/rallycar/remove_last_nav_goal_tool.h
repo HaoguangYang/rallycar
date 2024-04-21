@@ -30,23 +30,13 @@
 #define REMOVE_LAST_NAV_GOAL_TOOL_HPP_
 
 #include <QObject>
+#include <qevent.h>
 
 #include <rviz_common/tool.hpp>
+#include <rviz_common/display_context.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <actionlib_msgs/msg/goal_id.hpp>
 
-namespace Ogre
-{
-class SceneNode;
-class Vector3;
-}
-
-namespace rviz
-{
-class VectorProperty;
-class VisualizationManager;
-class ViewportMouseEvent;
-}
 
 namespace rallycar_rviz_plugin
 {
@@ -72,7 +62,7 @@ public Q_SLOTS:
   void updateTopic();
 
 private:
-  rclcpp::Publisher<actionlib_msgs::msg::GoalID> cancel_pt_pub_;
+  rclcpp::Publisher<actionlib_msgs::msg::GoalID>::SharedPtr cancel_pt_pub_;
 };
 // END_TUTORIAL
 

@@ -53,6 +53,23 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# build rviz plugins
+find_package(Qt5 REQUIRED Core Widgets)
+# this setting causes Qt's "MOC" generation to happen automatically.
+set(CMAKE_AUTOMOC ON)
+# qt compile workflow is not addressed by ament_auto... yet, so we will define it manually
+add_library(rallycar_rviz_plugin_lib SHARED
+  src/remove_last_nav_goal_tool.cpp
+)
+ament_target_dependencies(rallycar_rviz_plugin_lib
+  "rviz_common"
+  "actionlib_msgs"
+)
+target_include_directories(rallycar_rviz_plugin_lib PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${Qt5Widgets_INCLUDE_DIRS}
+)
+
 # tests, beginners may ignore this "if" section
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -66,8 +83,9 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# export information to downstream packages
 ament_auto_package(
+  # export information to downstream (depended-by) packages
   CONFIG_EXTRAS "${PROJECT_NAME}-extras.cmake"
+  # install additional folders
   INSTALL_TO_SHARE resources urdf launch param
 )
