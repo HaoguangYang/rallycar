@@ -24,7 +24,7 @@ def generate_launch_description():
     scanmatching_slam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('rallycar'),
-                         'launch', 'scanmatching_slam.launch.py')
+                         'launch', 'include', 'scanmatching_slam.launch.py')
         )
     )
 

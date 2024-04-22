@@ -1,11 +1,6 @@
 slam_node:
   ros__parameters:
     # ROS Parameters
-    map_frame: map
-    base_frame: base_link
-    odom_frame: odom
-    mode: mapping                   # or localization
-    transform_publish_period: 0.025 # if 0 never publishes map->odom
 
     # normally, you don't need to alter the params below
 
@@ -70,3 +65,5 @@ slam_node:
     minimum_angle_penalty: 0.9
     minimum_distance_penalty: 0.5
     use_response_expansion: true
+
+    use_lifecycle_manager: false

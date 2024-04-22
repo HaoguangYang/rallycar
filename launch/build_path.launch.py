@@ -58,7 +58,6 @@ def generate_launch_description():
         ]
     )
 
-
     return LaunchDescription([
         map_file_arg,
         path_file_arg,
