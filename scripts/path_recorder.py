@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import rclpy
+from rclpy.node import Node
 import yaml
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
@@ -24,9 +25,11 @@ def list_of_pose_dict_to_path_msg(inp):
     for item in inp:
         p = PoseStamped()
         p.header.frame_id = "map"
-        (p.pose.position.x, p.pose.position.y, p.pose.position.z) =
+        pos = p.pose.position
+        pos.x, pos.y, pos.z = \
             (item['position']['x'], item['position']['y'], item['position']['z'])
-        (p.pose.orientation.x, p.pose.orientation.y, p.pose.orientation.z, p.pose.orientation.w) =
+        ori = p.pose.orientation
+        ori.x, ori.y, ori.z, ori.w = \
             (item['orientation']['x'], item['orientation']['y'],
              item['orientation']['z'], item['orientation']['w'])
         path.poses.append(p)
@@ -45,16 +48,18 @@ class PathRecorder(Node):
             file_name (str): path file name to save with.
         """
         super().__init__('path_recorder_node')
-        self.declare_parameter('path_file')
+        self.declare_parameter('path_file', '')
         self.path_file = self.get_parameter('path_file').value
+        if not len(self.path_file):
+            raise Exception('invalid filename')
         self.path = []
         self.path_sub = self.create_subscription(
-            PoseStamped, "/move_base_simple/goal", self.clicked_pose_callback,
+            PoseStamped, "/goal_pose", self.clicked_pose_callback,
             rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value)
         self.path_pub = self.create_publisher(
             Path, "/desired_path", rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value)
         self.path_rm_last_sub = self.create_subscription(
-            GoalID, "/move_base/cancel", self.del_last_pose_callback,
+            GoalID, "/cancel", self.del_last_pose_callback,
             rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value
         )
 

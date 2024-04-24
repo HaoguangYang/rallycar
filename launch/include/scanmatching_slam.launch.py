@@ -28,11 +28,11 @@ def generate_launch_description():
             # since this block is defined later, if some parameter have duplicate names,
             # the param defined below will overwrite whatever included from the file above.
             'map_frame': 'map',
-            'base_frame': 'base_link'
-            'odom_frame': 'odom'
-            'mode': 'mapping'                   # 'mapping' or 'localization'
-            'transform_publish_period': 0.025   # if 0 never publishes map->odom
-            'use_sim_time': False
+            'base_frame': 'base_link',
+            'odom_frame': 'odom',
+            'mode': 'mapping',                  # 'mapping' or 'localization'
+            'transform_publish_period': 0.025,  # if 0 never publishes map->odom
+            'use_sim_time': False,
           }
         ],
         # suppress console output -- only when level "warning" and above

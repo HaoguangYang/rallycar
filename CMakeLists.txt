@@ -53,22 +53,22 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
-# build rviz plugins
+# build rviz plugins -- need to specify qt dependency manually
 find_package(Qt5 REQUIRED Core Widgets)
-# this setting causes Qt's "MOC" generation to happen automatically.
-set(CMAKE_AUTOMOC ON)
-# qt compile workflow is not addressed by ament_auto... yet, so we will define it manually
-add_library(rallycar_rviz_plugin_lib SHARED
+# need to generate MOC files manually to prevent namespace mangling
+set(rallycar_rviz_plugin_headers_to_moc
+  include/rallycar/remove_last_nav_goal_tool.hpp
+)
+foreach(header "${rallycar_rviz_plugin_headers_to_moc}")
+  qt5_wrap_cpp(rallycar_rviz_plugin_moc_files "${header}")
+endforeach()
+
+# and ament_auto_add_library will work just as well.
+ament_auto_add_library(rallycar_rviz_plugin_lib SHARED
+  ${rallycar_rviz_plugin_moc_files}
   src/remove_last_nav_goal_tool.cpp
 )
-ament_target_dependencies(rallycar_rviz_plugin_lib
-  "rviz_common"
-  "actionlib_msgs"
-)
-target_include_directories(rallycar_rviz_plugin_lib PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${Qt5Widgets_INCLUDE_DIRS}
-)
+pluginlib_export_plugin_description_file(rviz_common plugin_description.xml)
 
 # tests, beginners may ignore this "if" section
 if(BUILD_TESTING)

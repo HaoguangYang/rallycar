@@ -55,9 +55,9 @@ class ScanmatcherOdomRepubNode(Node):
 
     def handle_pose_update(self, msg):
         # copy timestamp directly from the subscribed message
-        self.odom_msg.header.stamp = msg.header.stamp
+        # self.odom_msg.header.stamp = msg.header.stamp
         # if we are extrapolating pose with time, use the current timestamp instead
-        # self.odom_msg.header.stamp = self.get_clock().now().to_msg()
+        self.odom_msg.header.stamp = self.get_clock().now().to_msg()
 
         if not self.odom_header_frame_id_override:
             self.odom_msg.header.frame_id = msg.header.frame_id

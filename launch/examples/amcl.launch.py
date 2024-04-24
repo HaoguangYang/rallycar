@@ -14,6 +14,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             os.path.join(get_package_share_directory('rallycar'), 'param', 'amcl.param.yaml'),
+            { 'tf_broadcast': True },
         ]
     )
     return LaunchDescription([

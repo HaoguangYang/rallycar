@@ -30,13 +30,12 @@
 #define REMOVE_LAST_NAV_GOAL_TOOL_HPP_
 
 #include <QObject>
-#include <qevent.h>
+#include <QKeyEvent>
 
 #include <rviz_common/tool.hpp>
 #include <rviz_common/display_context.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <actionlib_msgs/msg/goal_id.hpp>
-
 
 namespace rallycar_rviz_plugin
 {
@@ -50,15 +49,17 @@ class RemoveLastNavGoal: public rviz_common::Tool
 Q_OBJECT
 public:
   RemoveLastNavGoal();
-  virtual ~RemoveLastNavGoal();
+  ~RemoveLastNavGoal() override;
 
-  virtual int processKeyEvent(QKeyEvent* event, rviz_common::RenderPanel* panel);
+  void onInitialize() override;
 
-  virtual void activate(){};
+  int processKeyEvent(QKeyEvent* event, rviz_common::RenderPanel* panel) override;
 
-  virtual void deactivate(){};
+  void activate() override {};
 
-public Q_SLOTS:
+  void deactivate() override {};
+
+protected:
   void updateTopic();
 
 private:

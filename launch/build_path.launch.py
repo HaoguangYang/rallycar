@@ -8,11 +8,17 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
-# FIXME: change these two declaration of default map/path file name based on your actual setup
+"""
+FIXME: change these two declaration of default map/path file name based on your actual setup
+N.B.: Although we are using install path for demo purposes, a more convenient way
+is to provide the absolute path starting with `~` or `/`. If you are using an install
+path and not building with `--symlink-install`, you need to do a `colcon build`
+and source `install/setup.bash` for the ros2 utilities to find the file.
+"""
 default_map_file = os.path.join(get_package_share_directory('rallycar'),
                                 'resources', 'maps', 'crane_500_map.yaml')
 default_path_file = os.path.join(get_package_share_directory('rallycar'),
-                                 'resources', 'paths', 'crane_500_demo_path.yaml')
+                                 'resources', 'paths', 'knoy_speedway_demo_path.yaml')
 
 
 def generate_launch_description():
@@ -40,21 +46,34 @@ def generate_launch_description():
         parameters=[
             { 'yaml_filename': map_file, },
         ]
+        # topic: /map with qos=[keep_last, reliable, transient_local]
+    )
+    nav2_activation_node = Node(
+        package='nav2_lifecycle_manager',
+        executable='lifecycle_manager',
+        name='lifecycle_manager_mapper',
+        output='screen',
+        parameters=[{
+            'autostart': True,
+            'node_names': ['map_server']
+        }]
     )
     path_saver_node = Node(
         package='rallycar',
         executable='path_recorder.py',
         output='screen',
         parameters=[
-            { 'file_name': path_file, },
+            { 'path_file': path_file, },
         ]
     )
     rviz_interactive_node = Node(
         package='rviz2',
         executable='rviz2',
         output='screen',
-        parameters=[
-            {}
+        name='rviz2',
+        arguments=['-d' + os.path.join(
+            get_package_share_directory('rallycar'),
+            'resources', 'rviz_configs', 'build_path.rviz')
         ]
     )
 
@@ -62,6 +81,7 @@ def generate_launch_description():
         map_file_arg,
         path_file_arg,
         map_server_node,
+        nav2_activation_node,
         path_saver_node,
         rviz_interactive_node,
     ])

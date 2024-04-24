@@ -8,7 +8,15 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
-# FIXME: change this declaration of default map file name based on your actual setup
+"""
+FIXME: change this declaration of default map file name based on your actual setup
+or use the example at the end of this document to include this launch file into your
+project.
+N.B.: Although we are using install path for demo purposes, a more convenient way
+is to provide the absolute path starting with `~` or `/`. If you are using an install
+path and not building with `--symlink-install`, you need to do a `colcon build`
+and source `install/setup.bash` for the ros2 utilities to find the file.
+"""
 default_path_file = os.path.join(
     get_package_share_directory('rallycar'),
     'resources', 'paths', 'crane_500_default_path.yaml'
@@ -40,3 +48,18 @@ def generate_launch_description():
         path_file_arg,
         path_server_node,
     ])
+
+
+"""
+This launch example can be included as:
+    IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('rallycar'),
+                'launch', 'examples', 'load_path.launch.py')
+        ),
+        launch_arguments={
+            'path_file' : os.path.join(get_package_share_directory('YOUR_PACKAGE'),
+                'resources', 'paths', 'YOUR_PATH_FILE.yaml'),
+        }.items()
+    )
+"""

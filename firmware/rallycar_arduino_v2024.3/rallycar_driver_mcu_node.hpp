@@ -24,7 +24,8 @@ namespace rallycar_config {
     const float steerServoMax = 2000.0;
 
     // if speed limiter is on the "trim" knob
-    const float spdLimiterMin = 1380.0;
+    // const float spdLimiterMin = 1380.0;  // without safety margin
+    const float spdLimiterMin = 1500.0;     // with safety margin (only use upper half)
     const float spdLimiterMax = 1620.0;
     // if speed limiter is the actual "throttle" trigger
     //const float spdLimiterMin = 1500.0;

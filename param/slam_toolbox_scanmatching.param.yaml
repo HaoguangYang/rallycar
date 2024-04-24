@@ -56,8 +56,8 @@ slam_node:
     loop_search_space_smear_deviation: 0.03
 
     # Scan Matcher Parameters
-    distance_variance_penalty: 2.   # 4x this value as we are depending on scan-matching for odometry
-    angle_variance_penalty: 4.      # 4x this value as we are depending on scan-matching for odometry
+    distance_variance_penalty: 0.5   # 4x this value as we are depending on scan-matching for odometry
+    angle_variance_penalty: 1.      # 4x this value as we are depending on scan-matching for odometry
 
     fine_search_angle_offset: 0.00349
     coarse_search_angle_offset: 0.349
