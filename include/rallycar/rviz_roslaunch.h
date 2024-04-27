@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,56 +26,46 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef PLANT_FLAG_TOOL_H
+#define PLANT_FLAG_TOOL_H
 
-#include "rallycar/remove_last_nav_goal_tool.h"
+#include <rviz/tool.h>
+#include <ros/ros.h>
+#include <std_msgs/String.h>
+#include <QFileDialog>
 
-#include <rviz/viewport_mouse_event.h>
+namespace rviz
+{
+class VectorProperty;
+class VisualizationManager;
+class ViewportMouseEvent;
+}
 
-namespace rallycar_rviz_plugin {
+namespace rallycar_rviz_plugin
+{
 
 // BEGIN_TUTORIAL
-// Construction and destruction
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//
-// The constructor must have no arguments, so we can't give the
-// constructor the parameters it needs to fully initialize.
-//
-// Here we set the "shortcut_key_" member variable defined in the
-// superclass to declare which key will activate the tool.
-RemoveLastNavGoal::RemoveLastNavGoal() {
-  shortcut_key_ = 'd';
-  updateTopic();
-}
-
-RemoveLastNavGoal::~RemoveLastNavGoal() {}
-
-int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz::RenderPanel* panel)
+// Here we declare our new subclass of rviz::Tool.  Every tool
+// which can be added to the tool bar is a subclass of
+// rviz::Tool.
+class StartLaunchFile: public rviz::Tool
 {
-  if (event->type() == QKeyEvent::KeyPress)
-  {
-    int key = event->key();
-    if (key == Qt::Key_Backspace || key == Qt::Key_Delete)
-    {
-      cancel_pt_pub_.publish(actionlib_msgs::GoalID());
-    }
-  }
-  return 0;
-}
+Q_OBJECT
+public:
+  StartLaunchFile();
+  ~StartLaunchFile() override;
 
-void RemoveLastNavGoal::updateTopic()
-{
-  cancel_pt_pub_ = nh_.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 1);
-}
+  void activate() override;
 
-// End of .cpp file
-// ^^^^^^^^^^^^^^^^
-//
-// At the end of every plugin class implementation, we end the
-// namespace and then tell pluginlib about the class.  It is important
-// to do this in global scope, outside our package's namespace.
+  void deactivate() override;
 
-}  // namespace rallycar_rviz_plugin
-
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(rallycar_rviz_plugin::RemoveLastNavGoal, rviz::Tool)
+private:
+  ros::NodeHandle nh_;
+  std_msgs::String roslaunch_msg_;
+  ros::Publisher roslaunch_pub_, roslaunch_cancel_pub_;
+};
 // END_TUTORIAL
+
+} // end namespace rviz_plugin_tutorials
+
+#endif // PLANT_FLAG_TOOL_H

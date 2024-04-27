@@ -27,9 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rallycar/remove_last_nav_goal_tool.h"
-
-#include <rviz/viewport_mouse_event.h>
+#include "rallycar/rviz_roslaunch.h"
 
 namespace rallycar_rviz_plugin {
 
@@ -42,30 +40,30 @@ namespace rallycar_rviz_plugin {
 //
 // Here we set the "shortcut_key_" member variable defined in the
 // superclass to declare which key will activate the tool.
-RemoveLastNavGoal::RemoveLastNavGoal() {
-  shortcut_key_ = 'd';
-  updateTopic();
+StartLaunchFile::StartLaunchFile() {
+  shortcut_key_ = 'l';
 }
 
-RemoveLastNavGoal::~RemoveLastNavGoal() {}
+StartLaunchFile::~StartLaunchFile() {}
 
-int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz::RenderPanel* panel)
-{
-  if (event->type() == QKeyEvent::KeyPress)
-  {
-    int key = event->key();
-    if (key == Qt::Key_Backspace || key == Qt::Key_Delete)
-    {
-      cancel_pt_pub_.publish(actionlib_msgs::GoalID());
-    }
+void activate() {
+  roslaunch_pub_ = nh_.advertise<std_msgs::String>("/rviz_run_launch_file", 1);
+  roslaunch_cancel_pub_ = nh_.advertise<std_msgs::String>("/rviz_cancel_launch_file", 1);
+  std::string fileName = QFileDialog::getOpenFileName(this,
+    QObject::tr("Open Launch File"), QDir::currentPath(), QObject::tr("ROS Launch Files (*.launch)")).toStdString();
+  if (!filename.size()) {
+    close();
+    return;
   }
-  return 0;
+  roslaunch_msg_.data = filename;
+  roslaunch_pub_.publish(roslaunch_msg_);
 }
 
-void RemoveLastNavGoal::updateTopic()
-{
-  cancel_pt_pub_ = nh_.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 1);
+void deactivate() {
+  roslaunch_cancel_pub_.publish(roslaunch_msg_);
 }
+
+void StartLaunchFile::updateTopic() {}
 
 // End of .cpp file
 // ^^^^^^^^^^^^^^^^
@@ -77,5 +75,5 @@ void RemoveLastNavGoal::updateTopic()
 }  // namespace rallycar_rviz_plugin
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(rallycar_rviz_plugin::RemoveLastNavGoal, rviz::Tool)
+PLUGINLIB_EXPORT_CLASS(rallycar_rviz_plugin::StartLaunchFile, rviz::Tool)
 // END_TUTORIAL

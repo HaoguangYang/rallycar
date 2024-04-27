@@ -16,9 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package()
 
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
+include_directories( include ${catkin_INCLUDE_DIRS} )
 
 # below adopted from rviz_plugin_tutorials
 catkin_package()
@@ -49,6 +47,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 ## The generated MOC files are included automatically as headers.
 set(RVIZ_PLUGIN_SRC_FILES
   src/remove_last_nav_goal_tool.cpp
+  src/rviz_roslaunch.cpp
 )
 
 ## An rviz plugin is just a shared library, so here we declare the
@@ -71,7 +70,6 @@ add_library(${PROJECT_NAME}_rviz_plugin ${RVIZ_PLUGIN_SRC_FILES})
 target_link_libraries(${PROJECT_NAME}_rviz_plugin ${QT_LIBRARIES} ${catkin_LIBRARIES})
 ## END_TUTORIAL
 
-include_directories(include ${catkin_INCLUDE_DIRS})
 add_executable(rallycar_driver_node
   src/serial_impl.cc
   src/serial.cc
