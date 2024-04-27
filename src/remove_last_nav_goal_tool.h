@@ -52,7 +52,7 @@ public:
 
   void activate() override;
 
-  void deactivate() override {};
+  void deactivate() override;
 
 private:
   ros::NodeHandle nh_;

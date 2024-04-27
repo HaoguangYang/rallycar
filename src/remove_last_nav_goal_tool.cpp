@@ -48,6 +48,10 @@ void RemoveLastNavGoal::activate() {
   cancel_pt_pub_ = nh_.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 1);
 }
 
+void RemoveLastNavGoal::deactivate() {
+  cancel_pt_pub_.shutdown();
+}
+
 int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz::RenderPanel* panel)
 {
   if (event->type() == QKeyEvent::KeyPress)

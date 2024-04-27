@@ -50,11 +50,17 @@ StartLaunchFile::StartLaunchFile() :
 void StartLaunchFile::activate() {
   roslaunch_pub_ = nh_.advertise<std_msgs::String>("/rviz_run_launch_file", 1);
   roslaunch_cancel_pub_ = nh_.advertise<std_msgs::String>("/rviz_cancel_launch_file", 1);
-  std::string fileName = QFileDialog::getOpenFileName(nullptr,
-    QObject::tr("Open Launch File"), QDir::currentPath(), QObject::tr("ROS Launch Files (*.launch)")).toStdString();
+  std::string fileName;
+  nh_.param<std::string>("~launch_file_preset", fileName, "");
   if (!fileName.size()) {
-    close();
-    return;
+    // if has no preset, ask with a file open dialog box
+    fileName = QFileDialog::getOpenFileName(nullptr,
+      QObject::tr("Open Launch File"), QDir::currentPath(), QObject::tr("ROS Launch Files (*.launch)")).toStdString();
+    if (!fileName.size()) {
+      // if still invalid (cancled), return doing nothing.
+      close();
+      return;
+    }
   }
   roslaunch_msg_.data = fileName;
   roslaunch_pub_.publish(roslaunch_msg_);
@@ -66,6 +72,8 @@ void StartLaunchFile::deactivate() {
   if (!started_) return;
   roslaunch_cancel_pub_.publish(roslaunch_msg_);
   rviz::InteractionTool::deactivate();
+  roslaunch_pub_.shutdown();
+  roslaunch_cancel_pub_.shutdown();
   started_ = false;
 }
 

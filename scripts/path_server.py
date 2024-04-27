@@ -70,7 +70,7 @@ class PathRecorder:
         self.path = []
         self.path_sub = rospy.Subscriber("/move_base_simple/goal", PoseStamped,
                                          self.clicked_pose_callback)
-        self.path_pub = rospy.Publisher("/desired_path", Path, queue_size=1)
+        self.path_pub = rospy.Publisher("/desired_path", Path, latch=True, queue_size=1)
         self.path_rm_last_sub = rospy.Subscriber("/move_base/cancel", GoalID,
                                                  self.del_last_pose_callback)
 
