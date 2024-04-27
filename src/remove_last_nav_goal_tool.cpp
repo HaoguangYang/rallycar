@@ -27,9 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rallycar/remove_last_nav_goal_tool.h"
-
-#include <rviz/viewport_mouse_event.h>
+#include "remove_last_nav_goal_tool.h"
 
 namespace rallycar_rviz_plugin {
 
@@ -44,10 +42,11 @@ namespace rallycar_rviz_plugin {
 // superclass to declare which key will activate the tool.
 RemoveLastNavGoal::RemoveLastNavGoal() {
   shortcut_key_ = 'd';
-  updateTopic();
 }
 
-RemoveLastNavGoal::~RemoveLastNavGoal() {}
+void RemoveLastNavGoal::activate() {
+  cancel_pt_pub_ = nh_.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 1);
+}
 
 int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz::RenderPanel* panel)
 {
@@ -60,11 +59,6 @@ int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz::RenderPanel* pane
     }
   }
   return 0;
-}
-
-void RemoveLastNavGoal::updateTopic()
-{
-  cancel_pt_pub_ = nh_.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 1);
 }
 
 // End of .cpp file

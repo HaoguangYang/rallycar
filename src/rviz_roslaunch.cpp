@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rallycar/rviz_roslaunch.h"
+#include "rviz_roslaunch.h"
 
 namespace rallycar_rviz_plugin {
 
@@ -40,30 +40,34 @@ namespace rallycar_rviz_plugin {
 //
 // Here we set the "shortcut_key_" member variable defined in the
 // superclass to declare which key will activate the tool.
-StartLaunchFile::StartLaunchFile() {
+StartLaunchFile::StartLaunchFile() :
+  rviz::InteractionTool(),
+  started_(false)
+{
   shortcut_key_ = 'l';
 }
 
-StartLaunchFile::~StartLaunchFile() {}
-
-void activate() {
+void StartLaunchFile::activate() {
   roslaunch_pub_ = nh_.advertise<std_msgs::String>("/rviz_run_launch_file", 1);
   roslaunch_cancel_pub_ = nh_.advertise<std_msgs::String>("/rviz_cancel_launch_file", 1);
-  std::string fileName = QFileDialog::getOpenFileName(this,
+  std::string fileName = QFileDialog::getOpenFileName(nullptr,
     QObject::tr("Open Launch File"), QDir::currentPath(), QObject::tr("ROS Launch Files (*.launch)")).toStdString();
-  if (!filename.size()) {
+  if (!fileName.size()) {
     close();
     return;
   }
-  roslaunch_msg_.data = filename;
+  roslaunch_msg_.data = fileName;
   roslaunch_pub_.publish(roslaunch_msg_);
+  rviz::InteractionTool::activate();
+  started_ = true;
 }
 
-void deactivate() {
+void StartLaunchFile::deactivate() {
+  if (!started_) return;
   roslaunch_cancel_pub_.publish(roslaunch_msg_);
+  rviz::InteractionTool::deactivate();
+  started_ = false;
 }
-
-void StartLaunchFile::updateTopic() {}
 
 // End of .cpp file
 // ^^^^^^^^^^^^^^^^

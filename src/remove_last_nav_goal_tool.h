@@ -26,20 +26,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef PLANT_FLAG_TOOL_H
-#define PLANT_FLAG_TOOL_H
+#ifndef _REMOVE_LAST_NAV_GOAL_H_
+#define _REMOVE_LAST_NAV_GOAL_H_
 
 #include <rviz/tool.h>
 #include <ros/ros.h>
-#include <std_msgs/String.h>
-#include <QFileDialog>
-
-namespace rviz
-{
-class VectorProperty;
-class VisualizationManager;
-class ViewportMouseEvent;
-}
+#include <actionlib_msgs/GoalID.h>
+#include <QKeyEvent>
 
 namespace rallycar_rviz_plugin
 {
@@ -48,24 +41,25 @@ namespace rallycar_rviz_plugin
 // Here we declare our new subclass of rviz::Tool.  Every tool
 // which can be added to the tool bar is a subclass of
 // rviz::Tool.
-class StartLaunchFile: public rviz::Tool
+class RemoveLastNavGoal: public rviz::Tool
 {
 Q_OBJECT
 public:
-  StartLaunchFile();
-  ~StartLaunchFile() override;
+  RemoveLastNavGoal();
+  ~RemoveLastNavGoal() override {};
+
+  int processKeyEvent(QKeyEvent* event, rviz::RenderPanel* panel) override;
 
   void activate() override;
 
-  void deactivate() override;
+  void deactivate() override {};
 
 private:
   ros::NodeHandle nh_;
-  std_msgs::String roslaunch_msg_;
-  ros::Publisher roslaunch_pub_, roslaunch_cancel_pub_;
+  ros::Publisher cancel_pt_pub_;
 };
 // END_TUTORIAL
 
 } // end namespace rviz_plugin_tutorials
 
-#endif // PLANT_FLAG_TOOL_H
+#endif // _REMOVE_LAST_NAV_GOAL_H_

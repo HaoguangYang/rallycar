@@ -16,10 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package()
 
-include_directories( include ${catkin_INCLUDE_DIRS} )
-
-# below adopted from rviz_plugin_tutorials
-catkin_package()
+# FOR RVIZ PLUGIN ONLY
+include_directories(${catkin_INCLUDE_DIRS})
 link_directories(${catkin_LIBRARY_DIRS})
 
 ## This setting causes Qt's "MOC" generation to happen automatically.
@@ -68,7 +66,9 @@ add_library(${PROJECT_NAME}_rviz_plugin ${RVIZ_PLUGIN_SRC_FILES})
 ## "librviz_plugin_tutorials.so", or whatever is appropriate for your
 ## particular OS.
 target_link_libraries(${PROJECT_NAME}_rviz_plugin ${QT_LIBRARIES} ${catkin_LIBRARIES})
-## END_TUTORIAL
+## END OF RVIZ PLUGIN
+
+include_directories( include ${catkin_INCLUDE_DIRS} )
 
 add_executable(rallycar_driver_node
   src/serial_impl.cc
@@ -92,5 +92,5 @@ install(FILES
 
 #install(DIRECTORY media/
 #  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/media)
-#install(DIRECTORY icons/
-#  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/icons)
+install(DIRECTORY icons/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/icons)
