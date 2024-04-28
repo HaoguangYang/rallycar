@@ -56,8 +56,10 @@ class PathRecorder(Node):
         self.path_sub = self.create_subscription(
             PoseStamped, "/goal_pose", self.clicked_pose_callback,
             rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value)
-        self.path_pub = self.create_publisher(
-            Path, "/desired_path", rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value)
+        path_pub_qos = rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value
+        path_pub_qos.history = rclpy.qos.HistoryPolicy.KEEP_LAST.value
+        path_pub_qos.durability = rclpy.qos.DurabilityPolicy.TRANSIENT_LOCAL.value
+        self.path_pub = self.create_publisher(Path, "/desired_path", path_pub_qos)
         self.path_rm_last_sub = self.create_subscription(
             GoalID, "/cancel", self.del_last_pose_callback,
             rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value
