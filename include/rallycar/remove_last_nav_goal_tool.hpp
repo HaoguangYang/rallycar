@@ -49,7 +49,7 @@ class RemoveLastNavGoal: public rviz_common::Tool
 Q_OBJECT
 public:
   RemoveLastNavGoal();
-  ~RemoveLastNavGoal() override;
+  virtual ~RemoveLastNavGoal() = default;
 
   void onInitialize() override;
 
@@ -58,9 +58,6 @@ public:
   void activate() override {};
 
   void deactivate() override {};
-
-protected:
-  void updateTopic();
 
 private:
   rclcpp::Publisher<actionlib_msgs::msg::GoalID>::SharedPtr cancel_pt_pub_;

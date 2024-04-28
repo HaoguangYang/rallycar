@@ -30,12 +30,13 @@
 #define _RVIZ2_ROS2LAUNCH_HPP_
 
 #include <QObject>
+#include <QFileDialog>
 
+#include <rviz_common/tool.hpp>
+#include <rviz_common/display_context.hpp>
 #include <rviz_default_plugins/tools/interaction/interaction_tool.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <rviz_common/display_context.hpp>
 #include <std_msgs/msg/string.hpp>
-#include <QFileDialog>
 
 namespace rallycar_rviz_plugin
 {
@@ -49,7 +50,7 @@ class StartLaunchFile: public rviz_default_plugins::tools::InteractionTool
 Q_OBJECT
 public:
   StartLaunchFile();
-  ~StartLaunchFile() override;
+  virtual ~StartLaunchFile() = default;
 
   void onInitialize() override;
 

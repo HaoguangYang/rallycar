@@ -44,10 +44,12 @@ RemoveLastNavGoal::RemoveLastNavGoal() {
   shortcut_key_ = 'd';
 }
 
-RemoveLastNavGoal::~RemoveLastNavGoal() {}
-
 void RemoveLastNavGoal::onInitialize() {
-  updateTopic();
+  rclcpp::Node::SharedPtr raw_node =
+    context_->getRosNodeAbstraction().lock()->get_raw_node();
+  cancel_pt_pub_ = raw_node->
+    template create_publisher<actionlib_msgs::msg::GoalID>(
+    "/cancel", 1);
 }
 
 int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz_common::RenderPanel* panel)
@@ -62,15 +64,6 @@ int RemoveLastNavGoal::processKeyEvent(QKeyEvent* event, rviz_common::RenderPane
     }
   }
   return 0;
-}
-
-void RemoveLastNavGoal::updateTopic()
-{
-  rclcpp::Node::SharedPtr raw_node =
-    context_->getRosNodeAbstraction().lock()->get_raw_node();
-  cancel_pt_pub_ = raw_node->
-    template create_publisher<actionlib_msgs::msg::GoalID>(
-    "/cancel", 1);
 }
 
 // End of .cpp file
