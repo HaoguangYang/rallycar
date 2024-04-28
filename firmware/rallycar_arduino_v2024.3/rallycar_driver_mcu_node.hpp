@@ -1,3 +1,9 @@
+/**
+ * The config data structure containing actuation limits, and the class that
+ * contains publishers/subscribers, IMU driver, and a throttle watchdog (as a
+ * timer) for safety concerns.
+ */
+
 #ifndef _RALLYCAR_DRIVER_MCU_NODE_HPP_
 #define _RALLYCAR_DRIVER_MCU_NODE_HPP_
 
@@ -86,6 +92,7 @@ public:
       accel_watchdog(this->get_clock(), 2000000UL, &RallycarDriverMCUNode::acceleratorCmdWatchdog, this)
     {
         registerTimer(&accel_watchdog);
+        /* IMPORTANT -- Make sure the registered IDs (second argument) match with the server side. */
         registerEndpoint(&imu_pub, 0);
         registerEndpoint(&accel_brake_sub, 1);
         registerEndpoint(&steer_sub, 2);

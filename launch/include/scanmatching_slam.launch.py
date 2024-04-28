@@ -39,22 +39,7 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', 'slam_node:=warn'],
     )
 
-    scanmatching_odom_node = Node(
-        package='rallycar',
-        executable='scanmatcher_odom_repub.py',
-        name='scanmatcher_odom_repub_node',
-        output='screen',
-        parameters=[
-            {
-                'scanmatcher_pose_topic': '/pose',
-                'odom_topic': '/odom',
-                'odom_header_frame_id': 'odom',
-                'odom_child_frame_id': 'base_link',
-            }
-        ],
-    )
-
-    odom_tf_node = Node(
+    odom_spoofer_node = Node(
         package='rallycar',
         executable='odom_tf_publisher.py',
         name='odom_tf_publisher_node',
@@ -64,7 +49,10 @@ def generate_launch_description():
                 'init_source_frame_name': 'odom',
                 'target_frame_name': 'base_link',
                 'init_tf_pose': [0., 0., 0., 0., 0., 0.],
-                'updater_topic': '/odom',
+                # since we cannot measure odom, we assume odom is a cnonstant zero
+                # this means the scanmatching slam node must handle all motion
+                # with map->odom.
+                'updater_topic': '',    # constant, no update
                 # broadcast tf at >= 40Hz
                 'min_tf_broadcast_frequency': 40.0,
             },
@@ -73,6 +61,5 @@ def generate_launch_description():
 
     return LaunchDescription([
         scanmatching_slam_node,
-        scanmatching_odom_node,
-        odom_tf_node,
+        odom_spoofer_node,
     ])

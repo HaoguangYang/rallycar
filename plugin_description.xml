@@ -6,4 +6,11 @@
       Tool for removing the last 2D NavGoal from Rallycar path recorder.
     </description>
   </class>
+  <class name="rallycar/Launch"
+         type="rallycar_rviz_plugin::StartLaunchFile"
+         base_class_type="rviz_common::Tool">
+    <description>
+      Tool for starting/stopping a launch file from RViz. Depends on the Python backend.
+    </description>
+  </class>
 </library>

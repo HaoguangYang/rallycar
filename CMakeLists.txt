@@ -58,6 +58,7 @@ find_package(Qt5 REQUIRED Core Widgets)
 # need to generate MOC files manually to prevent namespace mangling
 set(rallycar_rviz_plugin_headers_to_moc
   include/rallycar/remove_last_nav_goal_tool.hpp
+  include/rallycar/rviz2_ros2launch.hpp
 )
 foreach(header "${rallycar_rviz_plugin_headers_to_moc}")
   qt5_wrap_cpp(rallycar_rviz_plugin_moc_files "${header}")
@@ -67,6 +68,7 @@ endforeach()
 ament_auto_add_library(rallycar_rviz_plugin_lib SHARED
   ${rallycar_rviz_plugin_moc_files}
   src/remove_last_nav_goal_tool.cpp
+  src/rviz2_ros2launch.cpp
 )
 pluginlib_export_plugin_description_file(rviz_common plugin_description.xml)
 
@@ -87,5 +89,5 @@ ament_auto_package(
   # export information to downstream (depended-by) packages
   CONFIG_EXTRAS "${PROJECT_NAME}-extras.cmake"
   # install additional folders
-  INSTALL_TO_SHARE resources urdf launch param
+  INSTALL_TO_SHARE resources urdf launch param icons
 )

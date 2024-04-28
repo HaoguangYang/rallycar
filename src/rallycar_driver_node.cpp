@@ -65,8 +65,13 @@ public:
 
         // initialize serial port and publishers & subscribers.
         // after the loop exits (succeeded), the node starts listening
-        while (rclcpp::ok()){
-            if (this->transferInit()) break;
+        while (rclcpp::ok()) {
+            RCLCPP_INFO(get_logger(),
+                        "Trying to initialize communication over %s ...", port.c_str());
+            if (this->transferInit()) {
+                RCLCPP_INFO(get_logger(), "Communication initialized over %s .", port.c_str());
+                break;
+            }
             sleep(1);
         }
     }
