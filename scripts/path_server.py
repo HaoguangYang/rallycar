@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 import yaml
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
@@ -50,9 +51,11 @@ class PathServer(Node):
         self.path = list_of_pose_dict_to_path_msg(inp)
         self.path.header.stamp = self.get_clock().now().to_msg()
         self.get_logger().info("Read from file: %s" % (file_name,))
-        qos = rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value
-        qos.history = rclpy.qos.HistoryPolicy.KEEP_LAST.value
-        qos.durability = rclpy.qos.DurabilityPolicy.TRANSIENT_LOCAL.value
+        qos = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            history=HistoryPolicy.KEEP_LAST, depth=1,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL
+        )
         self.path_pub = self.create_publisher(Path, "/desired_path", qos)
         self.path_pub.publish(self.path)
 

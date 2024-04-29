@@ -110,7 +110,10 @@ class OdomTfPublisher(Node):
             self.tf.transform.translation.y, \
                 self.tf.transform.translation.z = \
                     (pos.x, pos.y, pos.z)
-        self.tf.transform.rotation = msg.pose.pose.orientation
+        q = msg.pose.pose.orientation
+        q_norm_sq = q.x**2 + q.y**2 + q.z**2 + q.w**2
+        if np.isfinite(q_norm_sq) and q_norm_sq > 0.:
+            self.tf.transform.rotation = q
 
         # we just received an update and have published, therefore we postpone
         # the next time-driven update by resetting the timer.
