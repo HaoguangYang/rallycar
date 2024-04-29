@@ -2,7 +2,7 @@
   <link name="base_link"/>
   <link name="laser"/>
   <link name="imu_frame"/>
-  <link name="rs_camera"/>
+  <link name="rs_camera_link"/>
 
   <joint name="base_to_laser" type="fixed">
     <parent link="base_link"/>
@@ -19,7 +19,7 @@
 
   <joint name="base_to_real_sense" type="fixed">
     <parent link="base_link"/>
-    <child link="rs_camera" />
+    <child link="rs_camera_link" />
     <origin xyz="0.34 0.0 0.12" rpy="0.0 0.0 0.0"/>
   </joint>
 

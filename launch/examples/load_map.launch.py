@@ -38,6 +38,7 @@ def generate_launch_description():
     map_server_node = Node(
         package='nav2_map_server',
         executable='map_server',
+        name='map_server',
         output='screen',
         parameters=[
             {'yaml_filename': map_file}

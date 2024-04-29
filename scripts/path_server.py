@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import rclpy
+from rclpy.node import Node
 import yaml
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
@@ -23,9 +24,11 @@ def list_of_pose_dict_to_path_msg(inp):
     for item in inp:
         p = PoseStamped()
         p.header.frame_id = "map"
-        (p.pose.position.x, p.pose.position.y, p.pose.position.z) =
+        pos = p.pose.position
+        pos.x, pos.y, pos.z = \
             (item['position']['x'], item['position']['y'], item['position']['z'])
-        (p.pose.orientation.x, p.pose.orientation.y, p.pose.orientation.z, p.pose.orientation.w) =
+        ori = p.pose.orientation
+        ori.x, ori.y, ori.z, ori.w = \
             (item['orientation']['x'], item['orientation']['y'],
              item['orientation']['z'], item['orientation']['w'])
         path.poses.append(p)
@@ -40,13 +43,13 @@ class PathServer(Node):
         """Class constructor that loads the path from file and publishes it.
         """
         super().__init__('path_server_node')
-        self.declare_parameter('path_file')
+        self.declare_parameter('path_file', "")
         file_name = self.get_parameter('path_file').value
         with open(file_name, 'r') as f:
             inp = yaml.safe_load(f)
         self.path = list_of_pose_dict_to_path_msg(inp)
         self.path.header.stamp = self.get_clock().now().to_msg()
-        print(self.path)
+        self.get_logger().info("Read from file: %s" % (file_name,))
         qos = rclpy.qos.QoSPresetProfiles.SYSTEM_DEFAULT.value
         qos.history = rclpy.qos.HistoryPolicy.KEEP_LAST.value
         qos.durability = rclpy.qos.DurabilityPolicy.TRANSIENT_LOCAL.value

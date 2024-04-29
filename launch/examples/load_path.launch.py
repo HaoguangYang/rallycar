@@ -40,7 +40,7 @@ def generate_launch_description():
         executable='path_server.py',
         output='screen',
         parameters=[
-            { 'file_name': path_file, },
+            { 'path_file': path_file, },
         ]
     )
 

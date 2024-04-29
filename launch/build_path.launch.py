@@ -7,9 +7,11 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
-
 """
-FIXME: change these two declaration of default map/path file name based on your actual setup
+Usage: ros2 launch rallycar build_path.launch.py map_file:=/path/to/map_file.yaml path_file:=/path/to/trajectory_file.yaml
+"""
+"""
+FIXME: If using the launch file without passing additional arguments, please change these two declaration of default map/path file name based on your actual setup
 N.B.: Although we are using install path for demo purposes, a more convenient way
 is to provide the absolute path starting with `~` or `/`. If you are using an install
 path and not building with `--symlink-install`, you need to do a `colcon build`
@@ -42,6 +44,7 @@ def generate_launch_description():
     map_server_node = Node(
         package='nav2_map_server',
         executable='map_server',
+        name='map_server',
         output='screen',
         parameters=[
             { 'yaml_filename': map_file, },
