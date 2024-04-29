@@ -49,7 +49,7 @@ StartLaunchFile::StartLaunchFile() :
 
 void StartLaunchFile::activate() {
   roslaunch_pub_ = nh_.advertise<std_msgs::String>("/rviz_run_launch_file", 1);
-  roslaunch_cancel_pub_ = nh_.advertise<std_msgs::String>("/rviz_cancel_launch_file", 1);
+  roslaunch_cancel_pub_ = nh_.advertise<std_msgs::String>("/rviz_shutdown_launch_file", 1);
   std::string fileName;
   nh_.param<std::string>("~launch_file_preset", fileName, "");
   if (!fileName.size()) {

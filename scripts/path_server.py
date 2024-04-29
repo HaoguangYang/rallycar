@@ -22,6 +22,8 @@ def list_of_pose_dict_to_path_msg(inp):
     path = Path(header=Header(stamp=rospy.Time.now(),
                             frame_id="map"))
     path.poses = []
+    if not inp:
+        return path
     for item in inp:
         path.poses.append(PoseStamped(
             header=Header(frame_id="map"),
