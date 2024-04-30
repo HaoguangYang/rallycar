@@ -29,7 +29,7 @@ def generate_launch_description():
             # the param defined below will overwrite whatever included from the file above.
             'map_frame': 'map',
             'base_frame': 'base_link',
-            'odom_frame': 'odom',
+            'odom_frame': 'map',
             'mode': 'mapping',                  # 'mapping' or 'localization'
             'transform_publish_period': 0.025,  # if 0 never publishes map->odom
             'use_sim_time': False,
@@ -39,27 +39,6 @@ def generate_launch_description():
         arguments=['--ros-args', '--log-level', 'slam_node:=warn'],
     )
 
-    odom_spoofer_node = Node(
-        package='rallycar',
-        executable='odom_tf_publisher.py',
-        name='odom_tf_publisher_node',
-        output='screen',
-        parameters=[
-            {
-                'init_source_frame_name': 'odom',
-                'target_frame_name': 'base_link',
-                'init_tf_pose': [0., 0., 0., 0., 0., 0.],
-                # since we cannot measure odom, we assume odom is a cnonstant zero
-                # this means the scanmatching slam node must handle all motion
-                # with map->odom.
-                'updater_topic': '',    # constant, no update
-                # broadcast tf at >= 40Hz
-                'min_tf_broadcast_frequency': 40.0,
-            },
-        ],
-    )
-
     return LaunchDescription([
         scanmatching_slam_node,
-        odom_spoofer_node,
     ])

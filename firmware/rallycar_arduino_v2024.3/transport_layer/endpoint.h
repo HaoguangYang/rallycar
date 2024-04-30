@@ -27,6 +27,7 @@ public:
 
     void publish(const T& msg){
         uint8_t* outBuffer = nh_->getEndpointBuffer(this->stream_id);
+        if (!outBuffer) return;
         nh_->returnEndpointBuffer(T::serialize(msg, outBuffer));
     }
 protected:

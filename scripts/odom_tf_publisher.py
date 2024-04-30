@@ -59,15 +59,11 @@ class OdomTfPublisher(Node):
         self.tf.child_frame_id = self.get_parameter('target_frame_name').value
         tf_init = self.get_parameter('init_tf_pose').value
         # unpack the first three values into translation
-        self.tf.transform.translation.x, \
-            self.tf.transform.translation.y, \
-                self.tf.transform.translation.z = tf_init[0:3]
+        t = self.tf.transform.translation
+        t.x, t.y, t.z = tf_init[0:3]
         # unpack the last three values into rotation (convert to quaternion)
-        self.tf.transform.rotation.x, \
-            self.tf.transform.rotation.y, \
-                self.tf.transform.rotation.z, \
-                    self.tf.transform.rotation.w = \
-                        quaternion_from_euler(tf_init[3], tf_init[4], tf_init[5])
+        q = self.tf.transform.rotation
+        q.x, q.y, q.z, q.w = quaternion_from_euler(tf_init[3], tf_init[4], tf_init[5])
 
         # User may specify a topic where this node receives updates.
         # if this parameter is non-empty, a subscriber of type
@@ -106,14 +102,9 @@ class OdomTfPublisher(Node):
 
         # translate the field names
         pos = msg.pose.pose.position
-        self.tf.transform.translation.x, \
-            self.tf.transform.translation.y, \
-                self.tf.transform.translation.z = \
-                    (pos.x, pos.y, pos.z)
-        q = msg.pose.pose.orientation
-        q_norm_sq = q.x**2 + q.y**2 + q.z**2 + q.w**2
-        if np.isfinite(q_norm_sq) and q_norm_sq > 0.:
-            self.tf.transform.rotation = q
+        t = self.tf.transform.translation
+        t.x, t.y, t.z = (pos.x, pos.y, pos.z)
+        self.tf.transform.rotation = msg.pose.pose.orientation
 
         # we just received an update and have published, therefore we postpone
         # the next time-driven update by resetting the timer.

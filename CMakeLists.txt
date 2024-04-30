@@ -49,7 +49,6 @@ install(PROGRAMS
   scripts/path_server.py
   scripts/path_recorder.py
   scripts/odom_tf_publisher.py
-  scripts/scanmatcher_odom_repub.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

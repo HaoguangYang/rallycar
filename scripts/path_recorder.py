@@ -98,6 +98,7 @@ class PathRecorder(Node):
             return
         with open(self.path_file, 'w+') as f:
             yaml.dump(self.path, f)
+            self.get_logger().info("Trajectory saved to %s" % (self.path_file,))
 
 
 def main():

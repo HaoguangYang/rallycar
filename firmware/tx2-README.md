@@ -4,6 +4,7 @@ Set recovery mode of the TX2 board by holding down the "RST" button and pressing
 
 Flashing command:
 ```sh
+# If you are using a custom image other than the official one
 gunzip -c ./your_custom_image.img.gz > ./nvidia/nvidia_sdk/JetPack_4.6.4_Linux_JETSON_TX2_TARGETS/Linux_for_Tegra/bootloader/system.img
 # or:
 # cp ./your_custom_img_or_sparse_img.img ./nvidia/nvidia_sdk/JetPack_4.6.4_Linux_JETSON_TX2_TARGETS/Linux_for_Tegra/bootloader/system.img

@@ -6,6 +6,11 @@ Command to initiate the raw image creation + flashing, the example below is for 
 ```sh
 cd JetPack_x.y.../Linux_for_Tegra && sudo ./nvsdkmanager_flash.sh --storage nvme0n1p1
 ```
+Alternatively, if you plug in an SD card, you can run:
+```sh
+cd JetPack_x.y.../Linux_for_Tegra && sudo ./nvsdkmanager_flash.sh --storage mmcblk0p1
+```
+The commands above flash the official image. You may need to change a parameter to re-route the flash program to work with your custom image.
 
 - Possible errors:
 1. timed out at flashing:

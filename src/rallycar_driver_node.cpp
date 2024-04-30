@@ -34,7 +34,7 @@ public:
         imu.header.frame_id = imu_frame;
 
         // MPU-6000 Has 0.05 deg/s RMS noise
-        double gyro_cov = std::pow(0.05 * M_PI / 180.0, 2);
+        double gyro_cov = std::pow(0.05 * M_PI / 180.0, 2.);
         imu.angular_velocity_covariance[0] = gyro_cov;
         imu.angular_velocity_covariance[4] = gyro_cov;
         imu.angular_velocity_covariance[8] = gyro_cov;
