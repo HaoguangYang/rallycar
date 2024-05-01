@@ -9,6 +9,9 @@
 
 namespace rallycar {
 
+/**
+ * @brief The driver node that bridges ROS2 messages with framed serial port communication
+ */
 class RallycarDriverNode : public rclcpp::Node, public SerialCommsInterface<256, 256, 3> {
     using SerialImuRaw = rallycar_msgs__msg::ImuRaw;
     using SerialFloat32 = std_msgs__msg::Float32;
@@ -26,10 +29,13 @@ public:
         ser_steer_pub(this)
     {
         // set node config at startup from parameters
+        // which port to use
         std::string port = this->declare_parameter<std::string>("serial_port_fd", "/dev/ttyACM0");
         this->setPort(port);
+        // baudrate of the communication
         int baud = this->declare_parameter<int>("serial_port_baudrate", 115200);
         this->setBaudrate((unsigned long)baud);
+        // what frame id should we entitle the IMU messages with
         std::string imu_frame = this->declare_parameter<std::string>("imu_frame_id", "imu_frame");
         imu.header.frame_id = imu_frame;
 

@@ -49,6 +49,7 @@ install(PROGRAMS
   scripts/path_server.py
   scripts/path_recorder.py
   scripts/odom_tf_publisher.py
+  scripts/launch_agent_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -30,15 +30,37 @@ def generate_launch_description():
             'map_frame': 'map',
             'base_frame': 'base_link',
             'odom_frame': 'map',
-            'mode': 'mapping',                  # 'mapping' or 'localization'
-            'transform_publish_period': 0.025,  # if 0 never publishes map->odom
+            # as "odom_frame" and "map_frame" are set the same, we don't need the tf below
+            # instead, we will start another node to publish "map->base_link" for visualization
+            'transform_publish_period': 0.0,    # if 0 never publishes map_frame->odom_frame
             'use_sim_time': False,
           }
+        ],
+        remappings=[
+            ('pose', '/scanmatching_odom/pose'),
         ],
         # suppress console output -- only when level "warning" and above
         arguments=['--ros-args', '--log-level', 'slam_node:=warn'],
     )
 
+    # This node is for visualization (providing the map->base_link transform):
+    odom_tf_node = Node(
+        package='rallycar',
+        executable='odom_tf_publisher.py',
+        name='odom_tf_publisher_node',
+        output='screen',
+        parameters=[
+            {
+                'init_source_frame_name': 'map',
+                'target_frame_name': 'base_link',
+                'init_tf_pose': [0., 0., 0., 0., 0., 0.],
+                'updater_topic': '/scanmatching_odom/pose', # published by slam_toolbox
+                'min_tf_broadcast_frequency': 40.0,         # broadcast tf at >= 40Hz
+            },
+        ],
+    )
+
     return LaunchDescription([
         scanmatching_slam_node,
+        odom_tf_node
     ])

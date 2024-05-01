@@ -1,4 +1,31 @@
 #!/usr/bin/env python3
+"""
+File: path_recorder.py
+Author: Haoguang Yang (yang1510@purdue.edu)
+Date: 2024-04-29
+
+Description:
+This script implements a ROS2 node that listens to the "/goal_pose" topic for
+poses, then concatenates the poses in reception sequence to form a path. In
+addition, the node listens to the "/cancel" topic, and removes the last-received
+pose from the resultant path when a message comes in. The node saves the path at
+a user-specified location upon exiting.
+
+This script is meant to work with RViz2, which publishes the user selection with
+"2D Goal Pose" tool to the "/goal_pose" topic. The pose removal portion works
+with the "rallycar/RemoveLastNavGoal" tool (src/remove_last_nav_goal_tool.cpp)
+that ships with this package. The saved file is in yaml format, recording
+position (x, y, z) and orientation (quaternion x, y, z, w) of each point in the
+path sequentially.
+
+Additionally, the node also publishes the live resultant path to "/desired_path"
+topic. This topic can be visualized in RViz2 to close the user interaction loop.
+
+User-specified parameter:
+- path_file: full path of the yaml file where the user wants to save the
+    resultant trajectory in.
+"""
+
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSPresetProfiles, \
@@ -8,17 +35,6 @@ from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
 from actionlib_msgs.msg import GoalID
 
-"""
-The path server node. It works in either publish mode (default) or record mode.
-In publish mode, it loads a path from `resources/paths` file, and publishes it
-at `/desired_path` topic with `latch=True`. The `latch` option allows any future
-subscribers to receive the message. The path will be published only once for a
-static path.
-In record mode, it subscribes to `/move_base_simple/goal` and records every
-received message as sequential poses. A subscriber is set up at `/move_base/cancel`
-to delete the last pose when requested. Upon exit, it saves the path to the
-filename specified as a yaml file.
-"""
 
 def list_of_pose_dict_to_path_msg(inp):
     path = Path()
@@ -39,7 +55,10 @@ def list_of_pose_dict_to_path_msg(inp):
 
 
 class PathRecorder(Node):
-    """The Path Recorder mode, invoked when running in record mode.
+    """The Path Recorder node.
+    It subscribes to `/goal_pose` and records every received message as sequential poses.
+    A subscriber is set up at `/cancel` to delete the last pose when requested.
+    Upon exit, it saves the path to the filename specified as a yaml file.
     """
 
     def __init__(self):

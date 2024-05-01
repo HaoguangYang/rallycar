@@ -52,7 +52,7 @@ void StartLaunchFile::onInitialize() {
     context_->getRosNodeAbstraction().lock()->get_raw_node();
   roslaunch_pub_ = raw_node->
     template create_publisher<std_msgs::msg::String>(
-    "run_launch_file", 1);
+    "start_launch_file", 1);
   roslaunch_cancel_pub_ = raw_node->
     template create_publisher<std_msgs::msg::String>(
     "shutdown_launch_file", 1);
@@ -60,11 +60,15 @@ void StartLaunchFile::onInitialize() {
 }
 
 void StartLaunchFile::activate() {
+  if (started_) {
+    close();
+    return;
+  }
   roslaunch_msg_.data = preset_launch_file_;
   if (!preset_launch_file_.size()) {
     // if has no preset, ask with a file open dialog box
     std::string fileName = QFileDialog::getOpenFileName(nullptr,
-      QObject::tr("Open Launch File"), QDir::currentPath(), QObject::tr("ROS Launch Files (*.launch)")).toStdString();
+      QObject::tr("Open Launch File"), QDir::currentPath(), QObject::tr("ROS2 Launch Files (*.launch.py)")).toStdString();
     if (!fileName.size()) {
       // if still invalid (cancled), return doing nothing.
       close();

@@ -6,17 +6,6 @@ import yaml
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
 
-"""
-The path server node. It works in either publish mode (default) or record mode.
-In publish mode, it loads a path from `resources/paths` file, and publishes it
-at `/desired_path` topic with `latch=True`. The `latch` option allows any future
-subscribers to receive the message. The path will be published only once for a
-static path.
-In record mode, it subscribes to `/move_base_simple/goal` and records every
-received message as sequential poses. A subscriber is set up at `/move_base/cancel`
-to delete the last pose when requested. Upon exit, it saves the path to the
-filename specified as a yaml file.
-"""
 
 def list_of_pose_dict_to_path_msg(inp):
     path = Path()
@@ -37,7 +26,15 @@ def list_of_pose_dict_to_path_msg(inp):
 
 
 class PathServer(Node):
-    """The Path Server mode, invoked when running in publish mode.
+    """The Path Server node.
+    It loads a path from the file specified by the `path_file` param, and publishes it
+    at `/desired_path` topic with qos:
+    QoSProfile(
+        reliability=ReliabilityPolicy.RELIABLE,
+        history=HistoryPolicy.KEEP_LAST, depth=1,
+        durability=DurabilityPolicy.TRANSIENT_LOCAL
+    )
+    The qos allows any future subscribers to receive the message exactly once for static paths.
     """
 
     def __init__(self):
@@ -64,6 +61,7 @@ def main():
     rclpy.init()
     node = PathServer()
     try:
+        # this line guards the process until Ctrl-C is pressed
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass

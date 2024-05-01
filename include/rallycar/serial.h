@@ -1,4 +1,3 @@
- 
 /*!
  * \file serial/serial.h
  * \author  William Woodall <wjwwood@gmail.com>

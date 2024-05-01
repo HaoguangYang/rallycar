@@ -2,7 +2,13 @@ slam_node:
   ros__parameters:
     # ROS Parameters
 
-    # normally, you don't need to alter the params below
+    # the scanmatching-based pose will not update, unless
+    # tf odom_frame->base_frame has changed more then this much:
+    minimum_travel_distance: 0.     # unset this value as we are depending on scan-matching for odometry
+    minimum_travel_heading: 0.      # unset this value as we are depending on scan-matching for odometry
+
+    # normally, you don't need to alter the params from this line and below
+    mode: 'mapping'                 # 'mapping' or 'localization'
 
     # Plugin params
     solver_plugin: solver_plugins::CeresSolver
@@ -31,8 +37,7 @@ slam_node:
     # General Parameters
     use_scan_matching: true
     use_scan_barycenter: true       # false?
-    minimum_travel_distance: 0.     # unset this value as we are depending on scan-matching for odometry
-    minimum_travel_heading: 0.      # unset this value as we are depending on scan-matching for odometry
+
     scan_buffer_size: 10
     scan_buffer_maximum_scan_distance: 10.0
     link_match_minimum_response_fine: 0.1

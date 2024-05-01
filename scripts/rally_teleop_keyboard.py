@@ -131,10 +131,8 @@ class KeyboardTwistTeleop(Node):
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.settings)
         return key
 
-
     def vels(self, speed, turn):
         return 'currently:\tspeed %s\tturn %s ' % (speed, turn)
-
 
     def run(self):
         x = 0
