@@ -8,15 +8,19 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     amcl_node = Node(
-        package='nav2_amcl',
-        executable='amcl',
-        name='amcl_node',
-        output='screen',
+        package="nav2_amcl",
+        executable="amcl",
+        name="amcl_node",
+        output="screen",
         parameters=[
-            os.path.join(get_package_share_directory('rallycar'), 'param', 'amcl.param.yaml'),
-            { 'tf_broadcast': True },
+            os.path.join(
+                get_package_share_directory("rallycar"), "param", "amcl.param.yaml"
+            ),
+            {"tf_broadcast": True},
+        ],
+    )
+    return LaunchDescription(
+        [
+            amcl_node,
         ]
     )
-    return LaunchDescription([
-        amcl_node,
-    ])

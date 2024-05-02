@@ -11,14 +11,18 @@ def generate_launch_description():
     of launch_ros.actions
     """
     hokuyo_node = Node(
-        package='urg_node',
-        name='hokuyo_lidar_driver_node',
-        executable='urg_node_driver',
-        output='screen',
+        package="urg_node",
+        name="hokuyo_lidar_driver_node",
+        executable="urg_node_driver",
+        output="screen",
         parameters=[
-            os.path.join(get_package_share_directory('rallycar'), 'param', 'lidar.param.yaml'),
+            os.path.join(
+                get_package_share_directory("rallycar"), "param", "lidar.param.yaml"
+            ),
         ],
     )
-    return LaunchDescription([
-        hokuyo_node,
-    ])
+    return LaunchDescription(
+        [
+            hokuyo_node,
+        ]
+    )

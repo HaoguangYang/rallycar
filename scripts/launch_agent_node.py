@@ -12,7 +12,8 @@ This script is usually used for demo purposes, e.g. to be used with the RViz2
 
 This ROS2 node subscribes to:
 - start_launch_file (std_msgs/String): full path of launch file to be started
-- shutdown_launch_file (std_msgs/String): full path of launch file to be stopped
+- shutdown_launch_file (std_msgs/String): full path of launch file to be
+    stopped
 """
 
 import multiprocessing

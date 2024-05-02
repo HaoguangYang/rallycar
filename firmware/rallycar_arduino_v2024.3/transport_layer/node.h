@@ -83,6 +83,8 @@ public:
     WallClock<Hardware>* get_clock() const { return &clock; }
 
     void spin() {
+        // this function is strictly single-threaded, which guarantees
+        // txBuffer is only used by one function call at a time.
         int data = hw_->read();
         while (data >= 0) {
             this->framer->receiveChar((uint8_t)data);

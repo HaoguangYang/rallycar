@@ -15,30 +15,41 @@ def generate_launch_description():
     """
     hardware_driver_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory('rallycar'),
-                         'launch', 'rallycar_hardware.launch.py')
+            os.path.join(
+                get_package_share_directory("rallycar"),
+                "launch",
+                "rallycar_hardware.launch.py",
+            )
         )
     )
 
     # we can create nodes and put into the launch description as well
     scanmatching_slam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory('rallycar'),
-                         'launch', 'include', 'scanmatching_slam.launch.py')
+            os.path.join(
+                get_package_share_directory("rallycar"),
+                "launch",
+                "include",
+                "scanmatching_slam.launch.py",
+            )
         )
     )
 
-    print_usage_instructions = LogInfo(msg="To start a keyboard teleop session, "\
-        "keep this session running, open a new terminal, enter this workspace, "\
-        "and run:\n"\
-        "\tsource ./install/setup.bash\n"\
-        "\tros2 run rallycar rally_teleop_keyboard.py\n\n"\
-        "To save the resultant map, keep this session running, open a new terminal "\
-        "and run:\n"\
-        "\tros2 run map_server map_saver_cli -f your_map_file_name\n")
+    print_usage_instructions = LogInfo(
+        msg="To start a keyboard teleop session, "
+        "keep this session running, open a new terminal, enter this workspace, "
+        "and run:\n"
+        "\tsource ./install/setup.bash\n"
+        "\tros2 run rallycar rally_teleop_keyboard.py\n\n"
+        "To save the resultant map, keep this session running, open a new terminal "
+        "and run:\n"
+        "\tros2 run map_server map_saver_cli -f your_map_file_name\n"
+    )
 
-    return LaunchDescription([
-        hardware_driver_launch,
-        scanmatching_slam_launch,
-        print_usage_instructions,
-    ])
+    return LaunchDescription(
+        [
+            hardware_driver_launch,
+            scanmatching_slam_launch,
+            print_usage_instructions,
+        ]
+    )

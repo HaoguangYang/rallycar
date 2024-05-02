@@ -32,27 +32,36 @@
 
 #define RX_MTU 256
 
+// Statically allocate serial receive buffer
 static uint8_t ser_buf[RX_MTU];
+// Statically instantiate the hardware abstraction layer
 ArduinoHardware hw;
+// Statically instantiate the framing protocol and wrapped API
 sensor_network::CommsInterface<ArduinoHardware> comms(&hw);
 Hdlc<sensor_network::CommsInterface<ArduinoHardware>> framer(
     &(comms.send_char), &(comms.dispatch_frame), RX_MTU, &(ser_buf[0]), &comms
 );
 
+// instantiate our custom driver class
 RallycarDriverMCUNode node_inst(&hw, &framer);
 
 void setup(){
+    // Indicator of initialization status
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, LOW);
+    // prepare hardware
     hw.setBaud(115200);
     hw.init();
     comms.register_node(&node_inst);
     node_inst.imu_init();
     node_inst.drive_by_wire_init();
+    // initialization complete
     digitalWrite(LED_PIN, HIGH);
 }
 
 void loop(){
+    // spin() checks for incoming data from the serial port and dispatch to endpoints
     node_inst.spin();
+    // check IMU data buffer every cycle and send the data over serial when ready
     node_inst.publish_imu_when_ready();
 }

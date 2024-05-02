@@ -23,6 +23,7 @@ def get_share_file(package_name: str, *args: str) -> str:
     return os.path.join(get_package_share_directory(package_name), *args)
 '''
 
+
 def generate_launch_description():
     """
     This function is by default called when executing ros2 launch ...
@@ -33,41 +34,54 @@ def generate_launch_description():
     # include other launch files
     lidar_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory('rallycar'),
-                         'launch', 'include', 'lidar.launch.py')
+            os.path.join(
+                get_package_share_directory("rallycar"),
+                "launch",
+                "include",
+                "lidar.launch.py",
+            )
         )
     )
 
     static_tf_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory('rallycar'),
-                         'launch', 'include', 'static_tf.launch.py')
+            os.path.join(
+                get_package_share_directory("rallycar"),
+                "launch",
+                "include",
+                "static_tf.launch.py",
+            )
         )
     )
 
     # find the serial port in the normal way
-    serial_port = '/dev/ttyACM0'
+    serial_port = "/dev/ttyACM0"
     if not os.path.exists(serial_port):
-        serial_port = '/dev/ttyUSB0'
+        serial_port = "/dev/ttyUSB0"
 
     # we can create nodes and put into the launch description as well
     rallycar_driver_node = Node(
-        package='rallycar',
-        name='rallycar_driver',
-        executable='rallycar_driver_node',
-        output='screen',
+        package="rallycar",
+        name="rallycar_driver",
+        executable="rallycar_driver_node",
+        output="screen",
         parameters=[
             # elements within the parameter list can be either a string pointing to a yaml file
-            os.path.join(get_package_share_directory('rallycar'),
-                         'param', 'rallycar_driver.param.yaml'),
+            os.path.join(
+                get_package_share_directory("rallycar"),
+                "param",
+                "rallycar_driver.param.yaml",
+            ),
             # ... or a dictionary of key-value pairs
             {"serial_port_fd": serial_port},
             # in case of conflicting definitions, the one defined later will override.
         ],
     )
 
-    return LaunchDescription([
-        lidar_launch,
-        static_tf_launch,
-        rallycar_driver_node,
-    ])
+    return LaunchDescription(
+        [
+            lidar_launch,
+            static_tf_launch,
+            rallycar_driver_node,
+        ]
+    )

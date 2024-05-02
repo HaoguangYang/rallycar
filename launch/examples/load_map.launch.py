@@ -9,17 +9,17 @@ from launch_ros.actions import Node
 
 
 """
-FIXME: change this declaration of default map file name based on your actual setup,
-or use the example at the end of this document to include this launch file into your
-project.
-N.B.: Although we are using install path for demo purposes, a more convenient way
-is to provide the absolute path starting with `~` or `/`. If you are using an install
-path and not building with `--symlink-install`, you need to do a `colcon build`
-and source `install/setup.bash` for the ros2 utilities to find the file.
+FIXME: change this declaration of default map file name based on your actual
+setup, or use the example at the end of this document to include this launch
+file into your project.
+N.B.: Although we are using install path for demo purposes, a more convenient
+way is to provide the absolute path starting with `~` or `/`. If you are using
+an install path and not building with `--symlink-install`, you need to do a
+`colcon build` and source `install/setup.bash` for the ros2 utilities to find
+the file.
 """
 default_map_yaml_file = os.path.join(
-    get_package_share_directory('rallycar'),
-    'resources', 'maps', 'crane_500_map.yaml'
+    get_package_share_directory("rallycar"), "resources", "maps", "crane_500_map.yaml"
 )
 
 
@@ -29,28 +29,27 @@ def generate_launch_description():
     This function must return a LaunchDescription object created from a list
     of launch_ros.actions
     """
-    map_file = LaunchConfiguration('map_file')
+    map_file = LaunchConfiguration("map_file")
     map_file_arg = DeclareLaunchArgument(
-        'map_file',
-        default_value = default_map_yaml_file,
-        description = 'Full path of the yaml file to be loaded for a pgm map'
+        "map_file",
+        default_value=default_map_yaml_file,
+        description="Full path of the yaml file to be loaded for a pgm map",
     )
     map_server_node = Node(
-        package='nav2_map_server',
-        executable='map_server',
-        name='map_server',
-        output='screen',
-        parameters=[
-            {'yaml_filename': map_file}
-        ]
+        package="nav2_map_server",
+        executable="map_server",
+        name="map_server",
+        output="screen",
+        parameters=[{"yaml_filename": map_file}],
         # topic: /map with qos=[keep_last, reliable, transient_local]
     )
 
-
-    return LaunchDescription([
-        map_file_arg,
-        map_server_node,
-    ])
+    return LaunchDescription(
+        [
+            map_file_arg,
+            map_server_node,
+        ]
+    )
 
 
 """

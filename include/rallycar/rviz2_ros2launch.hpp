@@ -1,54 +1,36 @@
-/*
- * Copyright (c) 2012, Willow Garage, Inc.
- * All rights reserved.
+/**
+ * @file rviz2_ros2launch.hpp
+ * @author Haoguang Yang (yang1510@purdue.edu)
+ * @brief A RViz2 plugin that when clicked, opens a file dialog box for user to
+ * select a ROS2 launch file (*.launch.py). It then publishes the full file
+ * path as a std_msgs/String ROS2 message, into the start topic. It inherits
+ * the InteractionTool tool, which means users can control the camera view
+ * inside RViz when this tool is active. When the user exits the tool, it
+ * publishes the full path of the previously selected launch file into the
+ * cancel topic.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * @version 0.1
+ * @date 2024-04-27
  *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
- *       contributors may be used to endorse or promote products derived from
- *       this software without specific prior written permission.
+ * @copyright Copyright (c) 2024
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
  */
 #ifndef _RVIZ2_ROS2LAUNCH_HPP_
 #define _RVIZ2_ROS2LAUNCH_HPP_
 
-#include <QObject>
 #include <QFileDialog>
-
-#include <rviz_common/tool.hpp>
-#include <rviz_common/display_context.hpp>
-#include <rviz_default_plugins/tools/interaction/interaction_tool.hpp>
+#include <QObject>
 #include <rclcpp/rclcpp.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/tool.hpp>
+#include <rviz_default_plugins/tools/interaction/interaction_tool.hpp>
 #include <std_msgs/msg/string.hpp>
 
-namespace rallycar_rviz_plugin
-{
+namespace rallycar_rviz_plugin {
 
-// BEGIN_TUTORIAL
-// Here we declare our new subclass of rviz::Tool.  Every tool
-// which can be added to the tool bar is a subclass of
-// rviz::Tool.
-class StartLaunchFile: public rviz_default_plugins::tools::InteractionTool
-{
-Q_OBJECT
-public:
+class StartLaunchFile : public rviz_default_plugins::tools::InteractionTool {
+  Q_OBJECT
+ public:
   StartLaunchFile();
   virtual ~StartLaunchFile() = default;
 
@@ -58,14 +40,13 @@ public:
 
   void deactivate() override;
 
-private:
+ private:
   std::string preset_launch_file_;
   std_msgs::msg::String roslaunch_msg_;
   bool started_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr roslaunch_pub_, roslaunch_cancel_pub_;
 };
-// END_TUTORIAL
 
-} // end namespace rallycar_rviz_plugin
+}  // end namespace rallycar_rviz_plugin
 
-#endif // _RVIZ2_ROS2LAUNCH_HPP_
+#endif  // _RVIZ2_ROS2LAUNCH_HPP_

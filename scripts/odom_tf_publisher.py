@@ -45,20 +45,22 @@ import numpy as np
 # ref: https://answers.ros.org/question/359681/generic-subscriber-in-ros2/
 from ros2topic.api import get_msg_class
 
+
 def quaternion_from_euler(roll, pitch, yaw):
     """
-    Converts euler angles -- roll (x), pitch (y), yaw (z), angles are in radians,
-    into a Quaternion [qx, qy, qz, qw], returns a list of the four numbers.
+    Converts euler angles -- roll (x), pitch (y), yaw (z), angles are in
+    radians, into a Quaternion [qx, qy, qz, qw], returns a list of the four
+    numbers.
     """
     ehalf = np.array([roll, pitch, yaw]) * 0.5
     ci, cj, ck = np.cos(ehalf)
     si, sj, sk = np.sin(ehalf)
-    cc = ci*ck
-    cs = ci*sk
-    sc = si*ck
-    ss = si*sk
+    cc = ci * ck
+    cs = ci * sk
+    sc = si * ck
+    ss = si * sk
     # return q in [x, y, z, w] order
-    return [cj*sc - sj*cs, cj*ss + sj*cc, cj*cs - sj*sc, cj*cc + sj*ss]
+    return [cj * sc - sj * cs, cj * ss + sj * cc, cj * cs - sj * sc, cj * cc + sj * ss]
 
 
 class OdomTfPublisher(Node):
@@ -69,7 +71,8 @@ class OdomTfPublisher(Node):
     should set the "updater_topic" parameter to the topic with a publisher of
     Odometry message. On the publisher side, the user should set the
     header.frame_id field of the Odometry message as "odom", and the pose
-    field of the message being the integrated robot pose since it started moving.
+    field of the message being the integrated robot pose since it started
+    moving.
 
     This node Subscribes to a specified topic with message type Odometry, and
     extracts the header, pose.position, and pose.orientation fields. This node
@@ -83,21 +86,22 @@ class OdomTfPublisher(Node):
     is not specified or not updating, old values are packed with a current
     timestamp and re-published at that guard frequency.
     """
+
     def __init__(self):
-        super().__init__('odom_tf_publisher_node')
+        super().__init__("odom_tf_publisher_node")
 
         # Declare and acquire `odom_frame_name` parameter
-        self.declare_parameter('init_source_frame_name', 'odom')
-        self.declare_parameter('target_frame_name', 'base_link')
-        self.declare_parameter('init_tf_pose', [0., 0., 0., 0., 0., 0.])
-        self.declare_parameter('updater_topic', '')
-        self.declare_parameter('min_tf_broadcast_frequency', 10.0)
+        self.declare_parameter("init_source_frame_name", "odom")
+        self.declare_parameter("target_frame_name", "base_link")
+        self.declare_parameter("init_tf_pose", [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        self.declare_parameter("updater_topic", "")
+        self.declare_parameter("min_tf_broadcast_frequency", 10.0)
 
         # build the initial value
         self.tf = TransformStamped()
-        self.tf.header.frame_id = self.get_parameter('init_source_frame_name').value
-        self.tf.child_frame_id = self.get_parameter('target_frame_name').value
-        tf_init = self.get_parameter('init_tf_pose').value
+        self.tf.header.frame_id = self.get_parameter("init_source_frame_name").value
+        self.tf.child_frame_id = self.get_parameter("target_frame_name").value
+        tf_init = self.get_parameter("init_tf_pose").value
         # unpack the first three values into translation
         t = self.tf.transform.translation
         t.x, t.y, t.z = tf_init[0:3]
@@ -111,14 +115,14 @@ class OdomTfPublisher(Node):
         # is created at that topic, based on existing type of the publisher.
         # This node directly picks the header, pose.position, and pose.orientation,
         # fields, and updates the published transform.
-        self.sub_topic = self.get_parameter('updater_topic').value
+        self.sub_topic = self.get_parameter("updater_topic").value
         self.subscription = None
 
         # Initialize the transform broadcaster
         self.tf_broadcaster = TransformBroadcaster(self)
         # set a timer callback to guard the minimum update frequency.
-        tf_freq = self.get_parameter('min_tf_broadcast_frequency').value
-        self.send_tf_timer = self.create_timer(1./tf_freq, self.send_tf_callback)
+        tf_freq = self.get_parameter("min_tf_broadcast_frequency").value
+        self.send_tf_timer = self.create_timer(1.0 / tf_freq, self.send_tf_callback)
 
     def send_tf_callback(self):
         self.tf.header.stamp = self.get_clock().now().to_msg()
@@ -128,21 +132,31 @@ class OdomTfPublisher(Node):
             # automatically determine the message type of the topic
             message_type = None
             try:
-                message_type = get_msg_class(self, self.sub_topic, include_hidden_topics=True)
+                message_type = get_msg_class(
+                    self, self.sub_topic, include_hidden_topics=True
+                )
             except Exception as e:
                 pass
             if not message_type:
                 # log an error and return
-                self.get_logger().error("Automatic determination of message type "
-                    "failed on topic: \"%s\", retrying..." % (self.sub_topic,))
+                self.get_logger().error(
+                    "Automatic determination of message type "
+                    'failed on topic: "%s", retrying...' % (self.sub_topic,)
+                )
                 return
             # set up a subscriber on the topic with best effort QoS, if type is determined
-            self.subscription = self.create_subscription(message_type, self.sub_topic,
-                self.handle_tf_update, rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value)
+            self.subscription = self.create_subscription(
+                message_type,
+                self.sub_topic,
+                self.handle_tf_update,
+                rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value,
+            )
             # for logging
             msg_type_str_arr = str(message_type).split("'")[1].split(".")
-            self.get_logger().info("Subscribed to \"%s\" with automatically determined type: "
-                "\"%s/%s\"" % (self.sub_topic, msg_type_str_arr[0], msg_type_str_arr[-1]))
+            self.get_logger().info(
+                'Subscribed to "%s" with automatically determined type: '
+                '"%s/%s"' % (self.sub_topic, msg_type_str_arr[0], msg_type_str_arr[-1])
+            )
             # once subscriber is up, this "if" block is never called again.
 
     def handle_tf_update(self, msg):

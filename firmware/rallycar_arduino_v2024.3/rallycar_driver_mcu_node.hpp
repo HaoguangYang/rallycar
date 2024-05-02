@@ -16,11 +16,13 @@
 #include "mpu6050/MPU6050_6Axis_MotionApps612.h"
 #include <Servo.h>
 
+// hardware pin definitions
 #define SPEED_LIMITER_PIN 2
 #define STEER_PIN 6
 #define ACCEL_BRAKE_PIN 7
 #define LED_PIN 13
 
+// parameters
 namespace rallycar_config {
     const float accPedalRange = 2048.0;
     const float escMin = 1000.0;
@@ -46,6 +48,7 @@ volatile uint16_t spdLimiterPulseHighEdge  = 0;
 // The width of pulse in us(microseconds)
 volatile float escLimit = 0;
 
+// reader of PWM from RC control (speed limiter)
 void trimPulseTimer() {
     if (digitalRead(SPEED_LIMITER_PIN) == HIGH) {
       spdLimiterPulseHighEdge = micros() & 0xFFFF;
@@ -59,6 +62,7 @@ void trimPulseTimer() {
     }
 }
 
+// main driver class
 class RallycarDriverMCUNode : public sensor_network::Node<HdlcBase> {
 using ImuRaw = rallycar_msgs__msg::ImuRaw;
 using Float32 = std_msgs__msg::Float32;
@@ -204,6 +208,7 @@ public:
                 has_update = true;
             }
 
+            // get acceleration vector
             if (!imu.dmpGetAccel(outRaw, fifoBuffer)) {
                 const float scalingFactor = 9.80665f / 16384.0f;
                 imu_data.linear_acceleration.x = outRaw[0] * scalingFactor;
@@ -212,6 +217,7 @@ public:
                 has_update = true;
             }
 
+            // get angular velocity vector
             if (!imu.dmpGetGyro(outRaw, fifoBuffer)) {
                 const float scalingFactor = M_PI / (16.384 * 180.0);
                 imu_data.angular_velocity.x = outRaw[0] * scalingFactor;
@@ -220,6 +226,7 @@ public:
                 has_update = true;
             }
 
+            // if we have new data and time is synced, send updated message over serial
             if (has_update && state == NodeState::RUNNING)
                 imu_pub.publish(imu_data);
         }
